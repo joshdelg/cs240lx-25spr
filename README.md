@@ -105,18 +105,6 @@ Always do: Speed:
   - make a digital analyzer (printk for electricity) where
     you get the error rate down to a small number of nanoseconds
 
-
-If we have more kernel hackers some subset of:
-  - network bootloader
-  - make an actual OS that ties all the stuff together.
-  - small distributed system
-  - distributed file system
-  - actual clean fat32 r/w so can do distributed file system,
-    firmware updates.
-  - processes that migrate from one pi to another.
-  - FUSE file system interface.
-
-
 And a few different communication protocols: 
   - how fast can send/recv data over gpio pins b/n two pis?
   - over IR
@@ -135,9 +123,25 @@ More systems-y device labs, by combining into
 standalone tools:
   - acoustically reactive light display using mic, adc, 
     addressable light array.  extend to multiple systems.
-  - little osscilliscope using oled display, mic, adc
+  - little oscilliscope using oled display, mic, adc.
 
-Lots of other stuf.
+If we have more kernel hackers some subset of:
+  - network bootloader
+  - make an actual OS that ties all the stuff together.
+  - small distributed system
+  - distributed file system
+  - actual clean fat32 r/w so can do distributed file system,
+    firmware updates.
+  - processes that migrate from one pi to another.
+  - FUSE file system interface.
+
+Maybe other boards:
+  - pico 2?  (slow, but small+cheap: has arm-m33 and risv)
+  - ox64?  (risv)
+  - if we do riscv: can write a simulator that will simulate itself
+    on riscv in a couple of days.  can also make it symbolic.
+
+Possible other stuf:
   - e.g., maybe some other languages (rust?  zig?)
   - static bug finder.
 

@@ -1,8 +1,5 @@
 ## CS240lx, Spr 2025 (rm: Y2E2-111 6pm)
 
-<p align="center">
-<img src="labs/lab-memes/chaotic-study.jpg" width="400" />
-</p>
 
 -----------------------------------------------------------------
 ### tl;dr:  class setup
@@ -171,5 +168,5 @@ In addition, let us know:
   - stuff that you saw in the wild that looks cool.
 
 <p align="center">
-<img src="labs/lab-memes/aspirations.jpg" width="400" />
+<img src="labs/lab-memes/chaotic-study.jpg" width="400" />
 </p>

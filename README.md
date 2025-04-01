@@ -5,6 +5,40 @@
 </p>
 
 
+-----------------------------------------------------------------
+tl;dr:  class setup
+
+  - get the class repo:
+
+        git clone git@github.com:dddrrreee/cs240lx-25spr.git
+
+  - define the `CS240LX_2025_PATH` environment variable to 
+    point to where you put the class repo.  
+
+        # for tcsh in .tcshr
+        setenv CS240LX_2025_PATH <absolute path to your repo>
+
+        # for bash (in .bashrc or similar)
+        export CS240LX_2025_PATH=<absolute path to your repo>
+
+  - check that everything worked: plug in your pi, and run hello:
+
+        % pwd
+        /home/engler/class/cs240lx-25spr
+        % cd labs/0-pi-setup
+        % make
+
+        ... alot of stuff ...
+        listening on ttyusb=</dev/ttyUSB0>
+        hello world from the pi
+        DONE!!!
+        
+        Saw done
+
+  - great!
+
+-----------------------------------------------------------------
+
 
 If you liked 140e, consider taking cs240lx next quarter. 
   - it's fun.

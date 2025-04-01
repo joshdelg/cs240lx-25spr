@@ -8,4 +8,6 @@ BOOTLOADER = my-install
 # uncomment if you want it to automatically run.
 RUN=1
 
-include $(CS140E_2024_PATH)/libpi/mk/Makefile.template
+# in case you need division.
+LIB_POST += $(CS240LX_2025_PATH)/lib/libgcc.a
+include $(CS240LX_2025_PATH)/libpi/mk/Makefile.robust-v2

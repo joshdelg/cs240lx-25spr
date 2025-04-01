@@ -1,7 +1,6 @@
 ## 240lx Labs.
 
 
-
 <p align="center">
   <img src="lab-memes/coding.jpg" width="400" />
 </p>

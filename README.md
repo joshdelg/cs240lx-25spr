@@ -112,6 +112,12 @@ And a few different communication protocols:
   - over light and camera (?)
   - lora?
 
+
+Inspired by 140e final projects:
+  - Stewart doing some kind of elf loader.
+  - doing an ox64 lab?
+  - doing GPU + fractals for speedup.
+
 Device labs are fun.  So we do those too:
   - accelerometer, gyro
   - lidar

@@ -118,6 +118,7 @@ Inspired by 140e final projects:
   - doing an ox64 lab?
   - doing GPU + fractals for speedup.
 
+
 Device labs are fun.  So we do those too:
   - accelerometer, gyro
   - lidar
@@ -140,6 +141,10 @@ If we have more kernel hackers some subset of:
     firmware updates.
   - processes that migrate from one pi to another.
   - FUSE file system interface.
+
+Big stuff missing from 140e:
+  - makefiles
+  - crazy C macro tricks.
 
 Maybe other boards:
   - pico 2?  (slow, but small+cheap: has arm-m33 and risv)

@@ -5,7 +5,7 @@
 </p>
 
 -----------------------------------------------------------------
-tl;dr:  class setup
+### tl;dr:  class setup
 
   - get the class repo:
 
@@ -37,9 +37,8 @@ tl;dr:  class setup
   - write code!
 
 -----------------------------------------------------------------
+### Overview
 
-
-Overview:
   - If you liked 140e, consider taking cs240lx.
   - It's fun.
   - It's Joe's last quarter before graduation.
@@ -51,6 +50,13 @@ Same rough format:
   - still 2 days a week.
   - still hardware, low level code.
   - still pizza.
+
+Contents:
+  - cool tricks i picked up over 3+ decades. or seem not well covered.
+  - depends alot on what people are interested in.  can be
+    OS heavy, or more device heavy, or more project heavy
+    depending.  let us know what kind of stuff you are into.
+  - Probably at least one new board (pico, different riscv).
 
 Differences:
   - usually stop around 10:30pm or so, vs 1:00am.
@@ -66,15 +72,10 @@ Two old, partially overlapping offerings:
   - [cs240lx-22](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs)
   - [cs240lx-23](https://github.com/dddrrreee/cs240lx-23spr/tree/main/labs)
 
+-----------------------------------------------------------------
+### Possible labs
 
-Themes:
-  - cool tricks i picked up over 3+ decades. or seem not well covered.
-  - depends alot on what people are interested in.  can be
-    OS heavy, or more device heavy, or more project heavy
-    depending.  let us know what kind of stuff you are into.
-  - Probably at least one new board (pico, different riscv).
-
-Always generate executable code at runtime
+Always do: Generate executable code at runtime
   - even more low level than inline assembly.
   - self-modifying code is the ultimate sleazy hack.
   - used to make fast(er) interpreted languages (JIT for
@@ -83,16 +84,28 @@ Always generate executable code at runtime
   - can do all sorts of speed hacks by specializing using runtime
     information.  compiling data structures to code.  etc.
 
-Always do a custom pcb:
+Always do: Custom pcb:
   - parthiv historically comes in to do a week of custom pcb labs so
     can make your own cool boards.
 
-Always build a bunch of tools using memory faults and single-stepping.
+Always do: Build a bunch of tools using memory faults and single-stepping.
   - Eraser race detector 
   - Purify memory checker 
   - Advanced interleave checker.  
   - instruction level profiler measuring cycles, cache misses,
     etc.
+
+Always do: Speed:
+  - make low level operations (exceptions, fork/wait, pipe
+    ping pong) 10-100x faster than laptop.  i think this is
+    feasible but haven't done, so am interested.
+  - overclocking the pi and seeing how fast can push it.
+  - push the NRF using interrupts and concurrent tx, rx to 
+    see how close can get to the hw limit.
+
+  - make a digital analyzer (printk for electricity) where
+    you get the error rate down to a small number of nanoseconds
+
 
 If we have more kernel hackers some subset of:
   - network bootloader
@@ -104,16 +117,6 @@ If we have more kernel hackers some subset of:
   - processes that migrate from one pi to another.
   - FUSE file system interface.
 
-Always do some speed:
-  - make low level operations (exceptions, fork/wait, pipe
-    ping pong) 10-100x faster than laptop.  i think this is
-    feasible but haven't done, so am interested.
-  - overclocking the pi and seeing how fast can push it.
-  - push the NRF using interrupts and concurrent tx, rx to 
-    see how close can get to the hw limit.
-
-  - make a digital analyzer (printk for electricity) where
-    you get the error rate down to a small number of nanoseconds
 
 And a few different communication protocols: 
   - how fast can send/recv data over gpio pins b/n two pis?
@@ -140,20 +143,13 @@ Lots of other stuf.
   - static bug finder.
 
 ---------------------------------------------------------------------------
-#### What we need
+### What we need
 
-If you have time:
-  - let us know which topics you're more into.
-  - whether 6pm in same room as 140e is better
-    than 530 (or 430?) in different room.
+Let us know which topics you're more into:
+  - stuff missing from 140e.
+  - stuff that you saw that looks cool.
+  - stuff above that you're more into.
 
-Also: debating doing two new classes:
-  - device class were we do the fun stuff.
-  - low-level tools class (replacement for cs343 
-    advanced compilers) where we build a bunch of
-    tools --- static, dynamic, simulator, symbolic.
-
----------------------------------------------------------------------------
 <p align="center">
 <img src="lab-memes/aspirations.jpg" width="400" />
 </p>

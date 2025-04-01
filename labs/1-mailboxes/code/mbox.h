@@ -91,8 +91,12 @@ mbox_read(unsigned channel) {
 
 static inline uint32_t 
 mbox_send(unsigned channel, volatile void *data) {
+    // memory barrier so all stores to <data> have
+    // committed.  see: <libpi/include/rpi.h>
+    gcc_mb();
     mbox_write(MBOX_CH, data);
     mbox_read(MBOX_CH);
+    gcc_mb();
 
     volatile uint32_t *u = data;
     if(u[1] != 0x80000000)

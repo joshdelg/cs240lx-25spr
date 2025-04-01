@@ -21,10 +21,15 @@ send the request is re-used for replies.)
 So we'll do a few examples so you can get a handle on it.
     
 Checkoff:
-  - Mailbox: get your pi's revision, physical memory size and temperature.
+  - Get your pi's revision, physical memory size and temperature.
+  - We arely scratched the surface of the mailbox interface: figure
+    out something interesting and do it!
   - Extension: Overclock your pi and measure how much faster you can
     get it before things break down.  Ideally you'd read the temperature
     and down-throttle when things get "too hot" (not sure what that is :).
+
+    Potentially: use the 140e single-step equivalance lab to check 
+    when the code breaks exactly. 
 
 ------------------------------------------------------------------------------
 ### mailboxes `code/mailbox.c`

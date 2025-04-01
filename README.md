@@ -1,7 +1,7 @@
 ## CS240lx, Spr 2025 (rm: Y2E2-111 6pm)
 
 <p align="center">
-<img src="lab-memes/chaotic-study.jpg" width="400" />
+<img src="labs/lab-memes/chaotic-study.jpg" width="400" />
 </p>
 
 -----------------------------------------------------------------
@@ -159,11 +159,17 @@ Possible other stuf:
 ---------------------------------------------------------------------------
 ### What we need
 
-Let us know which topics you're more into:
+To get a better feel or what the labs look like, you can look at:
+  - [2023's repo](https://github.com/dddrrreee/cs240lx-23spr/tree/main/labs)
+  - [2022's repo](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs)
+
+There are way more possible labs than class slots so if you can please
+look through these and let us know some rough preferences.
+
+In addition, let us know:
   - stuff missing from 140e.
-  - stuff that you saw that looks cool.
-  - stuff above that you're more into.
+  - stuff that you saw in the wild that looks cool.
 
 <p align="center">
-<img src="lab-memes/aspirations.jpg" width="400" />
+<img src="labs/lab-memes/aspirations.jpg" width="400" />
 </p>

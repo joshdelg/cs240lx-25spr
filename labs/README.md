@@ -1,10 +1,6 @@
 ## 240lx Labs.
 
-
-<p align="center">
-  <img src="lab-memes/coding.jpg" width="400" />
-</p>
-
+Many more labs TBA.
 
 -------------------------------------------------------------------
 ### 0. Low-level hacking.
@@ -18,3 +14,8 @@ The first set of labs are low-level hacking.
      to generate executable machine code at runtime and how to 
      use this trick to do neat stuff.  
 
+-------------------------------------------------------------------
+
+<p align="center">
+  <img src="lab-memes/coding.jpg" width="350" />
+</p>

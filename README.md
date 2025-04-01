@@ -102,7 +102,6 @@ Always do: Speed:
   - overclocking the pi and seeing how fast can push it.
   - push the NRF using interrupts and concurrent tx, rx to 
     see how close can get to the hw limit.
-
   - make a digital analyzer (printk for electricity) where
     you get the error rate down to a small number of nanoseconds
 

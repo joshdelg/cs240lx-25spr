@@ -1,8 +1,10 @@
-## CS240lx-25 pitch
+## CS240lx, Spr 2025 (rm: Y2E2-111 6pm)
 
 <p align="center">
 <img src="lab-memes/chaotic-study.jpg" width="400" />
 </p>
+
+
 
 If you liked 140e, consider taking cs240lx next quarter. 
   - it's fun.
@@ -17,9 +19,9 @@ Same rough format:
   - still pizza.
 
 Differences:
-  - usually stop around 1030 or so, vs 1230.
-  - is more conceptual based.
-      - 140e must cover execution, vm, fs, some network.
+  - usually stop around 10:30pm or so, vs 1:00am.
+  - is more conceptual:
+      - 140e must cover threads, interrupts, VM, FS, some network.
       - 240lx assumes you know that stuff, and use it to do
         other stuff.
   - class can replace cs240 (paper reading).
@@ -31,7 +33,7 @@ Two old, partially overlapping offerings:
   - [cs240lx-23](https://github.com/dddrrreee/cs240lx-23spr/tree/main/labs)
 
 
-Topics:
+Themes:
   - cool tricks i picked up over 3+ decades. or seem not well covered.
   - depends alot on what people are interested in.  can be
     OS heavy, or more device heavy, or more project heavy
@@ -51,7 +53,6 @@ Always generate executable code at runtime
 Always do a custom pcb:
   - parthiv historically comes in to do a week of custom pcb labs so
     can make your own cool boards.
-
 
 Always build a bunch of tools using memory faults and single-stepping.
   - Eraser race detector 
@@ -106,8 +107,6 @@ Lots of other stuf.
   - e.g., maybe some other languages (rust?  zig?)
   - static bug finder.
 
-
-
 ---------------------------------------------------------------------------
 #### What we need
 
@@ -126,4 +125,3 @@ Also: debating doing two new classes:
 <p align="center">
 <img src="lab-memes/aspirations.jpg" width="400" />
 </p>
-

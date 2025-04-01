@@ -1,5 +1,6 @@
 # Makefile to build or clean all labs.
 SUBDIRS += 0-pi-setup 
+SUBDIRS += 1-mailboxes
 
 .PHONY: all check clean
 all check clean: $(SUBDIRS)

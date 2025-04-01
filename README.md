@@ -4,7 +4,6 @@
 <img src="lab-memes/chaotic-study.jpg" width="400" />
 </p>
 
-
 -----------------------------------------------------------------
 tl;dr:  class setup
 
@@ -35,14 +34,15 @@ tl;dr:  class setup
         
         Saw done
 
-  - great!
+  - write code!
 
 -----------------------------------------------------------------
 
 
-If you liked 140e, consider taking cs240lx next quarter. 
-  - it's fun.
-  - it's Joe's last quarter before graduation.
+Overview:
+  - If you liked 140e, consider taking cs240lx.
+  - It's fun.
+  - It's Joe's last quarter before graduation.
   - we have record enrollment so by the birthday paradox 
     / pigeon hole principle, your fav people will be there.
 
@@ -73,7 +73,6 @@ Themes:
     OS heavy, or more device heavy, or more project heavy
     depending.  let us know what kind of stuff you are into.
   - Probably at least one new board (pico, different riscv).
-
 
 Always generate executable code at runtime
   - even more low level than inline assembly.
@@ -122,7 +121,6 @@ And a few different communication protocols:
   - over speaker/mic.
   - over light and camera (?)
   - lora?
-
 
 Device labs are fun.  So we do those too:
   - accelerometer, gyro

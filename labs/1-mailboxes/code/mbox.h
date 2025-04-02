@@ -117,5 +117,6 @@ uint64_t rpi_get_serialnum(void);
 
 // get the temperature.
 uint32_t rpi_temp_get(void) ;
+uint32_t rpi_max_temp_get(void);
 
 #endif

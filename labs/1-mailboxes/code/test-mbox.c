@@ -15,7 +15,6 @@ unsigned cyc_per_sec(void) {
 
 void notmain(void) { 
     output("mailbox serial number = %llx\n", rpi_get_serialnum());
-    todo("implement the rest");
 
     output("mailbox revision number = %x\n", rpi_get_revision());
     output("mailbox model number = %x\n", rpi_get_model());
@@ -29,8 +28,14 @@ void notmain(void) {
     unsigned x = rpi_temp_get();
 
     // convert <x> to C and F
-    unsigned C = 0, F = 0;
+    unsigned C = x / 1000.0f, F = (x / 1000.0f) * (9.0f / 5.0f) + 32;
     output("mailbox temp = %x, C=%d F=%d\n", x, C, F); 
 
-    todo("do overclocking!\n");
+    // todo("do overclocking!\n");
+
+    unsigned max_temp_x = rpi_max_temp_get();
+    unsigned max_temp_c = max_temp_x / 1000.0f;
+    unsigned max_temp_f = max_temp_c * (9.0f / 5.0f) + 32;
+
+    output("mailbox max temp = %x, C=%d, F=%d\n", max_temp_x, max_temp_c, max_temp_f);
 }

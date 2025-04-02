@@ -72,6 +72,13 @@ Two old, partially overlapping offerings:
 -----------------------------------------------------------------
 ### Possible labs
 
+Inspired by 140e final projects:
+  - Stuart doing some kind of elf loader.
+  - Aditya, Rohan, Sebastian: an ox64 lab?
+  - Asanshay and Rohan: GPU + fractals for speedup.
+  - Max: riscv + ppp + smi + rust?
+  - others?
+
 Always do: Generate executable code at runtime
   - even more low level than inline assembly.
   - self-modifying code is the ultimate sleazy hack.
@@ -110,11 +117,6 @@ And a few different communication protocols:
   - lora?
 
 
-Inspired by 140e final projects:
-  - Stewart doing some kind of elf loader.
-  - doing an ox64 lab?
-  - doing GPU + fractals for speedup.
-
 
 Device labs are fun.  So we do those too:
   - accelerometer, gyro
@@ -152,6 +154,7 @@ Maybe other boards:
 Possible other stuf:
   - e.g., maybe some other languages (rust?  zig?)
   - static bug finder.
+
 
 ---------------------------------------------------------------------------
 ### What we need

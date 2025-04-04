@@ -1,5 +1,22 @@
 ## mailboxes.
 
+
+### errata
+
+  - In code/Makefile: change `my-install` to `pi-install` if
+    you didn't take 140e.
+
+        # old
+        BOOTLOADER = my-install
+
+        # new
+        BOOTLOADER = pi-install
+
+
+-------------------------------------------------------------
+### intro
+
+
 Since some people are getting setup with hardware, we'll just do a quick,
 fun lab on using the GPU mailbox to overclock the pi (and other things).
 
@@ -222,3 +239,17 @@ Fancier:
   - Also: rewrite the interface so it's no so awkward.
 
 Look through the doc and figure some stuff out.
+
+-------------------------------------------------------------------
+#### increase memory size
+
+There was an old 140e lab where we bumped the memory size available
+to the CPU:
+   - [memory size change](https://github.com/dddrrreee/cs140e-22win/blob/main/labs/10-low-level/increase-mem/README.md)
+
+I haven't looked at this in a couple of years, so  some of the 
+steps may not be required but it's a good place to start.
+
+To save time: the firmware for the large memory is in `firmware-increase-mem`.
+
+

@@ -52,12 +52,13 @@ expressivity.
 ### Checkoff
 
 If you've never done this lab before:
-  - Do 1-4.
+  - Do 1-5.
   - Do something interesting over the weekend.  It can be an extension
     or just something cute you think of.
 
 If you did this lab as an extension in 140e:
-  - Do at least two of the extensions at the end.
+  - Show that your 1-5 still works.
+  - Do at least one of the extensions at the end.
   - Do something interesting over the weekend.  It can be an extension
     or just something cute you think of.
 
@@ -198,7 +199,7 @@ in turn.  This will involve:
      link `bl`.  That way the last routine will return all the way
      back to the caller (saving one jump).
 
-#### Advanced: jump threading 
+#### Advanced extension: jump threading 
 
 To make it even faster you can do "jump threading" where instead of the
 interrupt routines returning back into the trampoline, they directly
@@ -233,7 +234,7 @@ declare success, at least for this lab.
 
 
 ----------------------------------------------------------------------------
-### Part 5: Runtime inlining `4-runtime-inline`
+### Part 4: Runtime inlining `4-runtime-inline`
 
 Modern C compilers generally only inline routines that are in the same
 file (or included header file).  And even then they may only do it if it
@@ -246,7 +247,7 @@ were various link-time optimizers (OM from David Wall was great) but now,
 they are rare.
 
 If you know machine code, you can write your own runtime inliner.
-We'll build a simple proof of concept that works by providing special
+We'll build a simplistic proof-of-concept that works by providing special
 versions of GET32 and PUT32 that can reach back into their caller and
 rewrite the callsite (the branch and link instruction that calls them).
 
@@ -309,19 +310,49 @@ Extension: specialize GPIO routines
      large constants in to eliminate the cache hit from loading them from
      memory (gcc's preferred method).
 
+
+#### Dynamic linking: extension
+
+This use of trampolines that reach back and modify the calling 
+instruction is one of several ways to make dynamic linking and
+indirect function calls faster. 
+
+For example, to dynamically link routine A, we instead statically link
+the original program with a small trampoline `A_trampoline` that works
+as follows:
+
+  1. Dynamically computes the address where A routine 
+     actually lives. 
+  2. Each time `A_trampoline` gets called, it reaches back to the 
+     callsite and modifies the call to directly call A.  
+
+     Note: if the original calling instruction is in read-only memory 
+     and judged to be too awkward / expensive to rewrite, the
+     `A_trampoline` could instead smash its own code with a direct
+     jump.  Other variations are possible.
+
+You can do a similar trick to change indirect jumps through function
+pointers to direct jumps (similar to the interrupt handler code above).
+Depending on how this works, it can eliminate a load and indirect branch
+misprediction.  Note that while such replacement can easily be a clear
+win if the function pointer doesn't change, it can be overly exciting
+if they do.
+
 --------------------------------------------------------------------------
 ### Part 5: make a jitter for dot-product.
 
-Given a sparse vector, generate custom dot product code that hard-codes
-the given vectors non-zero values in the instruction stream.
+Given a sparse integer vector, generate custom dot product code that
+hard-codes the given vector's non-zero values in the instruction stream.
 
-This was the first piece of code I ever wrote that led to publication.
-It's fun.  
-   1. For each unit test in `armv6-encodings` implement the needed
+This was the first piece of code I ever wrote that led to publication
+(thanks Todd Proebsting!).  It's fun.  
+   1. For each unit test in `code/armv6-encodings` implement the needed
       instruction.
 
-   2. Write the code in `5-jit-dot` to encode a dot product in the 
-      instruction stream, skipping zeros.  
+   2. Finish the code in `5-jit-dot/jit-dot.c:jit_dot` to encode a dot
+      product in the instruction stream, skipping zeros.
+
+   3. See how much faster the code is.
 
 ----------------------------------------------------------------------------
 ### Extensions
@@ -361,7 +392,6 @@ labs and use this approach --- their hashing should detect if
 there was a bug.  You can then just start tuning the exception
 handling like crazy.  We did it in a pretty dumb way: I wouldn't
 be suprised if you could get at least 5x speedup.
-
 
 #### Use the armv6 performance counters.
 
@@ -420,9 +450,24 @@ decades  --- you can build a simple version.  The paper is in
 This isn't useless:  Linux uses a more limited, mundane version of this
 approach (eBPF) by extending the BPF packet filter language.
 
-####  Compile a neural net to code
+####  Make a small back-end jitter
+
+Web assembly JIT: There are C compilers that spit out web assembly ---
+a stack-based low-level "portable assembly language".  You can write
+an interpreter for a small subset pretty easily.  And once you do this,
+you can write a JIT for this subset.  You should be able to easily get
+10x speedup --- more if you do clever tricks to get rid of the stack
+operations.  Very useful!
+
+eBPF/BPF jit: the BPF (or extended BPF) language is pretty small and
+widely used.  BPF for packet filtering (deciding for a given packet,
+which flow gets it), eBPF for linux performance monitoring.  Like web
+assembly BPF is stack based and slow to interpret.  You can make a JIT
+for without heroic effort that should give 10x or more.  
+Widely used, good to know, neat to do.
+
+####  Compile a hash table or neural net to code
 
 #### Alot more!
 
 There's various other hacks you can do; let us know if you need them!
-

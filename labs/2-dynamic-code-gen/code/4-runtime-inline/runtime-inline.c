@@ -30,8 +30,9 @@ static int inline_on_p = 0, inline_cnt = 0;
 // bytes past the call instruction to GET32_inline
 uint32_t GET32_inline_helper(uint32_t addr, uint32_t lr) {
     if(inline_on_p) {
-        todo("smash the call instruction to just do: ldr r0, [r0]\n");
+        // todo("smash the call instruction to just do: ldr r0, [r0]\n");
         uint32_t pc = lr - 4;
+        *(uint32_t*)pc = 0xe5900000;
 
         inline_cnt++;
 
@@ -48,8 +49,24 @@ uint32_t GET32_inline_helper(uint32_t addr, uint32_t lr) {
 // go through and rewrite similar to GET32_inline -- you have to 
 // modify <runtime-inline-asm.S> as well.
 void PUT32_inline_helper(uint32_t addr, uint32_t val, uint32_t lr) {
+    if(inline_on_p) {
+        uint32_t pc = lr - 4;
+        
+        // Smash instruction that called me to just do the put
+        *(uint32_t*) pc = 0xe5801000;
+
+        inline_cnt++;
+
+        inline_on_p = 0;
+        output("PUT: rewriting address=%x, inline count=%d\n", pc, inline_cnt);
+        inline_on_p = 1;
+    }
+
+
     inline_on_p = 0;
-    todo("implement this\n");
+
+    // manually do the store and return the first time.
+    *(uint32_t*) addr = val;
 }
 
 /********************************************************************
@@ -121,6 +138,24 @@ void test_get32_inline_10(void) {
     GET32_inline(0);
 }
 
+uint32_t buf;
+uint32_t* buf_addr = &buf;
+uint32_t buf_addr_int = (uint32_t) &buf_addr;
+
+void test_put32_inline_10(void) {
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+    PUT32_inline(buf_addr_int, 0);
+}
+
 // use the raw GET32: these won't get inlined, which
 // gives us a comparison point.
 void test_get32_10(void) {
@@ -137,9 +172,46 @@ void test_get32_10(void) {
     GET32(0);
 }
 
+void test_put32_10(void) {
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+    PUT32(buf_addr_int, 0);
+}
+
+static inline uint32_t armv6_b(uint32_t bl_pc, uint32_t target) {
+    // Do the steps that transform the 24 bit immediate to the
+    // PC-relative address in reverse
+    // printk("bl_pc: %x\n", bl_pc);
+    // printk("targetL %x\n", target);
+
+    // 3. bl_pc + 8 + offset = target
+    uint32_t offset = target - bl_pc - 8;
+    // printk("after bl_pc-8: %x\n", offset);
+
+    // 2. Shift result left 2 bits to make it 32
+    uint32_t offset_30 = offset >> 2;
+    // printk("after shift: %x\n", offset_30);
+
+    // 1. Sign extend 24 two's complement to 30 bits
+    uint32_t offset_24 = offset_30 & 0x00FFFFFF;
+    // printk("afer reverse extension: %x\n", offset_24);
+
+    return 0xEA000000 | offset_24;
+}
+
 // we time things a bunch of different ways.
 void notmain(void) {
     assert(!inline_cnt);
+
+    // asm volatile ("mov r2, lr");
 
     output("about to test get32 inlining\n");
     inline_on_p = 1;
@@ -168,7 +240,7 @@ void notmain(void) {
     output("time to run 10 times non-inlined:   %d\n", t_run10);
     output("total inline count=%d\n", inline_cnt);
 
-    todo("smash the original get32: should get same speedup\n");
+    // todo("smash the original get32: should get same speedup\n");
     
     // smash the GET32 code to call the GET32_inline_helper, identically
     // how GET32_inline does.  you can' just copy the code since the branch
@@ -183,7 +255,12 @@ void notmain(void) {
     // 2. this will result in all caller sites to GET32 getting
     //    inlined as well.
     // 3. thus: when it runs below, should have the same speedup
-    todo("assign the new instructions to get_pc[0] and get_pc[1]\n");
+    // todo("assign the new instructions to get_pc[0] and get_pc[1]\n");
+
+    uint32_t branch_to_helper = armv6_b((uint32_t)get_pc, (uint32_t)GET32_inline);
+
+    get_pc[0] = 0xe1a0100e;         // Move the lr into r1
+    get_pc[1] = branch_to_helper;   // Branch instruction
 
     output("after rewriting get32!\n");
     output("    inst[0] = %x\n", get_pc[0]);
@@ -203,5 +280,70 @@ void notmain(void) {
     output("time to run 10 times non-inlined:   %d\n", t_run10);
     output("total inline count=%d\n", inline_cnt);
 
-    todo("now implement the same thing for PUT32\n");
+
+
+    output("about to test put32 inlining\n");
+
+    inline_on_p = 1;
+    uint32_t t_put_inline = TIME_CYC(test_put32_inline(1));
+    uint32_t t_put_inline_run10 = TIME_CYC(test_put32_inline(100));
+    uint32_t t_put_run10 = TIME_CYC(test_put32(100));
+    inline_on_p = 0;
+
+    output("time to run w/ inlining overhead:   %d\n", t_put_inline);
+    output("time to run 10 times inlined:       %d\n", t_put_inline_run10);
+    output("time to run 10 times non-inlined:   %d\n", t_put_run10);
+    output("total inline count=%d\n", inline_cnt);
+    
+    output("about to test put32 inlining without loop or checking\n");
+
+    // test without a loop
+    inline_on_p = 1;
+    t_put_inline       = TIME_CYC(test_put32_inline_10());
+    t_put_inline_run10 = TIME_CYC(test_put32_inline_10());
+    t_put_run10        = TIME_CYC(test_put32_10());
+    inline_on_p = 0;
+
+    output("time to run w/ inlining overhead:   %d\n", t_put_inline);
+    output("time to run 10 times inlined:       %d\n", t_put_inline_run10);
+    output("time to run 10 times non-inlined:   %d\n", t_put_run10);
+    output("total inline count=%d\n", inline_cnt);
+
+    // smash the GET32 code to call the GET32_inline_helper, identically
+    // how GET32_inline does.  you can' just copy the code since the branch
+    // is relative to the destination.
+    // 
+    //      note: 0xe1a0100e  =  mov r1, lr
+    uint32_t *put_pc = (void *)PUT32;
+    uint32_t put_orig_val0 = put_pc[0];
+    uint32_t put_orig_val1 = put_pc[1];
+
+    // 1. rewrite the GET32 code to call GET32_inline.
+    // 2. this will result in all caller sites to GET32 getting
+    //    inlined as well.
+    // 3. thus: when it runs below, should have the same speedup
+    // todo("assign the new instructions to get_pc[0] and get_pc[1]\n");
+
+    uint32_t branch_to_put_helper = armv6_b((uint32_t)put_pc, (uint32_t)PUT32_inline);
+
+    put_pc[0] = 0xe1a0200e;         // Move the lr into r2 !! THINK
+    put_pc[1] = branch_to_put_helper;   // Branch instruction
+
+    output("after rewriting put32!\n");
+    output("    inst[0] = %x\n", put_pc[0]);
+    output("    inst[1] = %x\n", put_pc[1]);
+    inline_on_p = 1;
+
+    // this test should now have inline overhead.
+    t_put_inline       = TIME_CYC(test_put32_10());
+    // this is our original: should have the same speedup.
+    t_put_inline_run10 = TIME_CYC(test_put32_inline_10());
+    // after inlining this should be same as the GET32_inline overhead.
+    t_put_run10        = TIME_CYC(test_put32_10());
+    inline_on_p = 0;
+
+    output("time to run w/ inlining overhead:   %d\n", t_put_inline);
+    output("time to run 10 times inlined:       %d\n", t_put_inline_run10);
+    output("time to run 10 times non-inlined:   %d\n", t_put_run10);
+    output("total inline count=%d\n", inline_cnt);
 }

@@ -9,7 +9,20 @@ SECTIONS
      *
      * XXX: I cannot make text.boot work if we link start into libpi.a 
      */
-    .text 0x8000 :  { KEEP(*(.text.boot))  *(.text*) }
+    .custom_header 0x8000 : {
+        /* Branch instruction to skip header */
+        LONG(0xea00000e);
+        __hello_string__ = .;
+        /* "hell" */
+        LONG(0x6C6C6568);
+        /* "o" + 0 terminator */
+        LONG(0x6F);
+
+        /* Pad to 64 bytes (already used 12) */
+        /* . = . + 0x34; */
+        . = ALIGN(64);
+    }
+    .text :  { KEEP(*(.text.boot))  *(.text*) }
     .data : { *(.data*) } 
     .rodata : { *(.rodata*) }
     .bss : {

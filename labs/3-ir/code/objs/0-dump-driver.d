@@ -1,4 +1,4 @@
-objs/header.o: header.c \
+objs/0-dump-driver.o: 0-dump-driver.c \
  /Users/joshdelg/cs240lx-25spr//libpi/include/rpi.h \
  /Users/joshdelg/cs240lx-25spr//libpi/libc/demand.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/gpio.h \

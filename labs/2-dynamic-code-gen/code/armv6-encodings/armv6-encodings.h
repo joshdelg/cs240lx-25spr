@@ -135,6 +135,7 @@ armv6_ldr_off12(reg_t rd, reg_t rn, int offset) {
  * pass in a location to store them into.
  */
 
+// Return the next free addr at the code pointer
 static inline uint32_t *
 armv6_load_imm32(uint32_t *code, reg_t rd, uint32_t imm32) {
     // todo("implement loading arbitrary constant\n");
@@ -148,7 +149,7 @@ armv6_load_imm32(uint32_t *code, reg_t rd, uint32_t imm32) {
     code[1] = armv6_b((unsigned) (code + 1), (unsigned) (code + 3));
     code[2] = imm32;
 
-    return code;
+    return code + 3;
 }
 
 // MLA (Multiply Accumulate) multiplies two signed or unsigned 32-bit
@@ -158,7 +159,7 @@ armv6_load_imm32(uint32_t *code, reg_t rd, uint32_t imm32) {
 //      rd = rm * rs + rn.
 static inline uint32_t
 armv6_mla(reg_t rd, reg_t rm, reg_t rs, reg_t rn) {    
-    todo("implement multiply accumulate\n");
+    return cond_always << 28 | 0b00000010 << 20 | rd.reg << 16 | rn.reg << 12 | rs.reg << 8 | 0b1001 << 4 | rm.reg;
 }
 
 #endif

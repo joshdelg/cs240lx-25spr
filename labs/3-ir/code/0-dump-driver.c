@@ -13,6 +13,26 @@ typedef struct timed_reads {
     } r[TR_MAX];
 } tr_t;
 
+enum {
+    ONE = 16753245,
+    TWO = 16736925,
+    THREE = 16769565,
+    FOUR = 16720605,
+    FIVE = 16712445,
+    SIX = 16761405,
+    SEVEN = 16769055,
+    EIGHT = 16754775,
+    NINE = 16748655,
+    STAR = 16738455,
+    ZERO = 16750695,
+    HASH = 16756815,
+    UP = 16718055,
+    LEFT = 16716015,
+    OK = 16726215,
+    RIGHT = 16734885,
+    DOWN = 16730805
+};
+
 static inline tr_t tr_mk(void) {
     return (tr_t){};
 }
@@ -47,11 +67,93 @@ static uint32_t read_while_eq(int pin, int v, unsigned timeout) {
     }
 }
 
+static uint32_t within_target(uint32_t value, uint32_t target, float margin) {
+    return target * (1.0 - margin) <= value && value <= target * (1.0 + margin);
+}
+
+/**
+ * @brief Logs a key press
+ *
+ * Given a raw observed key press value, logs a human-readable
+ * representation of the key press to the console.
+ *
+ * @param observed The raw key press value
+ */
+void log_key_press(uint32_t observed) {
+    char *buf;
+    char buf2[32];
+    snprintk(buf2, 32, "UNKNOWN: %d", observed);
+    buf = buf2;
+
+    switch (observed) {
+        case ONE:
+            buf = "KEY 1";
+            break;
+        case TWO:
+            buf = "KEY 2";
+            break;
+        case THREE:
+            buf = "KEY 3";
+            break;
+        case FOUR:
+            buf = "KEY 4";
+            break;
+        case FIVE:
+            buf = "KEY 5";
+            break;
+        case SIX:
+            buf = "KEY 6";
+            break;
+        case SEVEN:
+            buf = "KEY 7";
+            break;
+        case EIGHT:
+            buf = "KEY 8";
+            break;
+        case NINE:
+            buf = "KEY 9";
+            break;
+        case STAR:
+            buf = "KEY *";
+            break;
+        case ZERO:
+            buf = "KEY 0";
+            break;
+        case HASH:
+            buf = "KEY #";
+            break;
+        case UP:
+            buf = "KEY UP";
+            break;
+        case LEFT:
+            buf = "KEY LEFT";
+            break;
+        case OK:
+            buf = "KEY OK";
+            break;
+        case RIGHT:
+            buf = "KEY RIGHT";
+            break;
+        case DOWN:
+            buf = "KEY DOWN";
+            break;
+    }
+    output("key press: %s\n", buf);
+}
+
 void notmain(void) {
     enum { 
         input = 21,         // input pin: "S" on IR
         N = 10,             // total readings
         timeout = 40000,    // timeout in usec
+        header_0 = 9000,
+        header_1 = 4500,
+        zerobit_0 = 600,
+        zerobit_1 = 600,
+        onebit_0 = 600,
+        onebit_1 = 1600,
+        stop_0 = 0,
+        stop_1 = 20000
      };
 
     gpio_set_input(input);
@@ -62,6 +164,17 @@ void notmain(void) {
 
     // if this fails, your hardware isn't hooked up right
     assert(gpio_read(input) == 1);
+
+    // Turn on GPIO 5, 7, 13, 6
+    gpio_set_function(4, GPIO_FUNC_OUTPUT);
+    gpio_set_function(5, GPIO_FUNC_OUTPUT);
+    gpio_set_function(6, GPIO_FUNC_OUTPUT);
+    gpio_set_function(13, GPIO_FUNC_OUTPUT);
+
+    gpio_write(4, 1);
+    gpio_write(5, 1);
+    gpio_write(6, 1);
+    gpio_write(13, 1);
 
     output("will try to do a raw dump of %d readings\n", N);
     for(int i = 0; i < N; i++) {
@@ -98,6 +211,41 @@ void notmain(void) {
             if(e)
                 output("v=%d, usec=%d", e->v, e->usec);
             output("\n");
+        }
+
+        // Shift observed reads into an integer
+        uint32_t observed = 0;
+        uint32_t assembling_code = 0;
+
+        for(int i = 0; i < l.n; i += 1) {
+            if(i + 1 >= l.n) break;
+
+            let e1 = tr_elem(&l, i);
+            let e2 = tr_elem(&l, i+1);
+
+            if(assembling_code) {
+                if(e1->v == 0 && within_target(e1->usec, zerobit_0, 0.1)) {
+                    // Decide 1 or 0
+                    uint32_t midpoint = (zerobit_1 + onebit_1) / 2;
+
+                    if(e2->v == 1) {
+                        if(e2->usec > stop_1) {
+                            assembling_code = 0;
+                            log_key_press(observed);
+                            observed = 0;
+                        } else {
+                            observed = observed << 1 | ((e2->usec < midpoint) ? 0 : 1);
+                        }
+
+                        i++;
+                    }
+                }
+            } else if(!assembling_code && e1->v == 0 && within_target(e1->usec, header_0, 0.1)) {
+                if(e2->v == 1 && within_target(e2->usec, header_1, 0.1)) {
+                    assembling_code = 1;
+                    i += 1;
+                }
+            }
         }
     }
 }

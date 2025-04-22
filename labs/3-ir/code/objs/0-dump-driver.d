@@ -3,7 +3,8 @@ objs/0-dump-driver.o: 0-dump-driver.c \
  /Users/joshdelg/cs240lx-25spr//libpi/libc/demand.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/gpio.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-constants.h \
- /Users/joshdelg/cs240lx-25spr//libpi/include/your-prototypes.h
+ /Users/joshdelg/cs240lx-25spr//libpi/include/your-prototypes.h \
+ /Users/joshdelg/cs240lx-25spr//libpi/libc/pi-random.h
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi.h:
 
@@ -14,3 +15,5 @@ objs/0-dump-driver.o: 0-dump-driver.c \
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-constants.h:
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/your-prototypes.h:
+
+/Users/joshdelg/cs240lx-25spr//libpi/libc/pi-random.h:

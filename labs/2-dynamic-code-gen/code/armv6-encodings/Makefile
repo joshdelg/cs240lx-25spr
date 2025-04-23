@@ -10,15 +10,16 @@ BOOTLOADER = my-install
 RUN=1
 
 # from easiest to hardest
-PROGS = 0-test-bx.c
-PROGS = 1-test-imm8.c
-PROGS = 2-test-imm8-rot4.c 
-PROGS = 2-test-orr-imm8-rot4.c
-PROGS = 3-test-imm32.c
-PROGS = 4-test-ldr-off12.c
+# PROGS = 0-test-bx.c
+# PROGS = 1-test-imm8.c
+# PROGS = 2-test-imm8-rot4.c 
+# PROGS = 2-test-orr-imm8-rot4.c
+# PROGS = 3-test-imm32.c
+# PROGS = 4-test-ldr-off12.c
+PROGS = 5-test-add-imm8-rot4.c
 
 # all of them.
-PROGS := $(wildcard [01234]-test*.c)
+# PROGS := $(wildcard [012354]-test*.c)
 
 # CFLAGS = -I../hand-coded
 

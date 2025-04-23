@@ -11,5 +11,9 @@ void call_hello(void) {
     printk("hello world\n");
 }
 
+uint32_t add_reg(uint32_t sum, uint32_t a1) {
+    return sum + a1;
+}
+
 void notmain(void) {
 }

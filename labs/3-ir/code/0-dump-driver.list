@@ -435,7 +435,7 @@ Disassembly of section .text:
     865c:	eb000706 	bl	a27c <gpio_write>
     8660:	e15a0005 	cmp	sl, r5
     8664:	1afffff4 	bne	863c <simon_says+0x78>
-    8668:	e3a00e7d 	mov	r0, #2000	; 0x7d0
+    8668:	e3a00f7d 	mov	r0, #500	; 0x1f4
     866c:	eb0006b0 	bl	a134 <delay_ms>
     8670:	e1a0a00d 	mov	sl, sp
     8674:	ea000001 	b	8680 <simon_says+0xbc>

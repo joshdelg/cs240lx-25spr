@@ -289,7 +289,7 @@ void simon_says(void) {
         }
 
         // Sleep for 2 seconds
-        delay_ms(2000);
+        delay_ms(500);
 
         // User Inputs sequence
         for(int i = 0; i < max_lights; i++) {
@@ -320,8 +320,8 @@ void notmain(void) {
     // if this fails, your hardware isn't hooked up right
     assert(gpio_read(input) == 1);
 
-    simon_says();
-    return;
+    // simon_says();
+    // return;
     
     output("will try to do a raw dump of %d readings\n", N);
     for(int i = 0; i < N; i++) {

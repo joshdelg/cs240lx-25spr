@@ -162,4 +162,41 @@ armv6_mla(reg_t rd, reg_t rm, reg_t rs, reg_t rn) {
     return cond_always << 28 | 0b00000010 << 20 | rd.reg << 16 | rn.reg << 12 | rs.reg << 8 | 0b1001 << 4 | rm.reg;
 }
 
+static inline uint32_t
+armv6_add(reg_t rd, reg_t rn, unsigned imm8, unsigned rot4) {
+    // TODO: Check S and I bits
+    return cond_always << 28 | 0b00101000 << 20 | rn.reg << 16 | rd.reg << 12 | rot4 << 8 | imm8;
+}
+
+static inline uint32_t
+armv6_add_reg(reg_t rd, reg_t rn, reg_t rm) {
+    // TODO: Check S and I bits
+    return cond_always << 28 | 0b00101000 << 20 | rn.reg << 16 | rd.reg << 12 | 0b00000000 << 4 | rm.reg;
+}
+
+struct imm8_rot4 {
+    uint32_t imm8;
+    uint32_t rot4;
+    uint32_t err;
+};
+
+static struct imm8_rot4 can_encode_by_rotate(uint32_t imm32) {
+    struct imm8_rot4 res;
+    res.imm8 = -1;
+    res.rot4 = -1;
+    res.err = 1;
+    for(int rot = 0; rot < 32; rot += 2) {
+        // Rotate left by rot to recover imm8 value
+        uint32_t rotated = imm32 << rot | imm32 >> (32 - rot);
+        if((rotated & 0xFFFFFF00) == 0) {
+            res.imm8 = rotated;
+            res.rot4 = rot / 2;
+            res.err = 0;
+            return res;
+        }
+    }
+
+    return res;
+}
+
 #endif

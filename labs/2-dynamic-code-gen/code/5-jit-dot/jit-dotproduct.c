@@ -89,3 +89,62 @@ uint32_t vec_dot(uint32_t *a, uint32_t *b, int n) {
     return sum;
 }
 
+
+vec_fn_t jit_dot_opt(uint32_t *b, unsigned n) {
+    
+    // gross: we don't know a-priori how much code we
+    // need. max would be about 6 instructions * n
+    unsigned n_inst = 10*n;
+    uint32_t *code = calloc(n_inst, 4), 
+            *cp = code, 
+            *end = code+n_inst;
+
+    // return address
+    reg_t lr = reg_mk(armv6_lr);
+
+    // the other vector <a> to use for the dot-product
+    // is passed in as the first argument.
+    reg_t a = reg_mk(0);
+
+    // temporary registers; we use caller-saved.
+    reg_t a_i = reg_mk(1);
+    reg_t b_i = reg_mk(2);
+    reg_t sum = reg_mk(12);
+
+    // we can eliminate this if we special case the first load.
+    cp = armv6_load_imm32(cp, sum, 0);
+
+    // iterate over each non-zero and generate a multiply 
+    // accumlate into sum.
+    for(int i = 0; i < n; i++) {
+        assert((cp + 10) < end);
+
+        // skip zeros.
+        if(b[i] == 0)
+            continue;
+
+        /* 
+            1. set  a_i = a[i].  (this happens once)
+            2. set b_i = b[i] (this happens each time the routine
+               is called)
+            3. use the multiply accumulate instruction.
+         */
+        *cp++ = armv6_ldr_off12(a_i, a, i * 4);
+
+        if(b[i] == 1) {
+            *cp++ = armv6_add_reg(sum, sum, a_i);
+            continue;
+        }
+
+        cp = armv6_load_imm32(cp, b_i, b[i]);
+        *cp++ = armv6_mla(sum, a_i, b_i, sum);
+        
+    }
+
+    // can get rid of this by changing the last instruction.
+    *cp++ = armv6_mov(reg_mk(0), sum);
+    *cp++ = armv6_bx(lr);
+    assert(cp<end);
+
+    return (void*)code;
+}

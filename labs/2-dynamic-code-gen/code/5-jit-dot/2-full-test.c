@@ -23,8 +23,14 @@ static void run_vector_test(
     vec_fn_t dot_fn = jit_dot(b,n);
     uint32_t d1 = dot_fn(a);
 
+    vec_fn_t opt_dot_fn = jit_dot_opt(b,n);
+    uint32_t d2 = opt_dot_fn(a);
+
     if(d0 != d1)
         panic("static dot=%d, jit dot=%d\n", d0,d1);
+
+    if(d0 != d2)
+        panic("static dot=%d, opt jit dot=%d\n", d0,d2);
 
     if(verbose_p) 
         output("passed: static dot = jit dot = %d\n", d0);
@@ -51,7 +57,10 @@ static void run_vector_test(
             TIME_CYC(d0 = vec_dot(a,b,n)));
         output("   jit:\t\t%d cycles\n", 
             TIME_CYC(d1 = dot_fn(a)));
+        output("   jit opt:\t%d cycles\n", 
+            TIME_CYC(d2 = opt_dot_fn(a)));
         assert(d0==d1);
+        assert(d0==d2);
     }
 
 
@@ -63,7 +72,10 @@ static void run_vector_test(
             TIME_CYC(d0 = vec_dot(a,b,n)));
         output("   jit:\t\t%d cycles\n", 
             TIME_CYC(d1 = dot_fn(a)));
+        output("   jit opt:\t%d cycles\n", 
+            TIME_CYC(d2 = opt_dot_fn(a)));
         assert(d0==d1);
+        assert(d0==d2);
     }
 }
 

@@ -6,6 +6,8 @@
 #include "code-gen.h"
 #include "armv6-insts.h"
 
+# define max(a,b) (((a)>(b))?(a):(b))
+
 /*
  *  1. emits <insts> into a temporary file: (use create_file
  *     write_exact, and then close the fd (otherwise).
@@ -17,7 +19,20 @@
  */
 uint32_t *insts_emit(unsigned *nbytes, char *insts) {
     // check libunix.h --- create_file, write_exact, run_system, read_file.
-    unimplemented();
+    // arm-none-eabi-as test.s -o temp1 && arm-none-eabi-objcopy -O binary temp1 temp2
+
+    // Write instructions to file
+    int fd = create_file("temp.s");
+    write_exact(fd, insts, strlen(insts));
+    close_nofail(fd);
+
+    // Compile instructions
+    run_system("arm-none-eabi-as temp.s -o temp1");
+    run_system("arm-none-eabi-objcopy -O binary temp1 temp2");
+
+    // Read instructions back in
+    uint32_t *result = read_file(nbytes, "temp2"); // n.b. will set nbytes to size of file
+    return result;
 }
 
 /*
@@ -29,7 +44,22 @@ uint32_t *insts_emit(unsigned *nbytes, char *insts) {
  */
 void insts_check(char *insts, uint32_t *code, unsigned nbytes) {
     // make sure you print out something useful on mismatch!
-    unimplemented();
+    // emit <insts>
+    unsigned gen_nbytes;
+    uint32_t *gen = insts_emit(&gen_nbytes, insts);
+
+    // compare <code,nbytes> to <gen,gen_nbytes>
+    if(gen_nbytes != nbytes) {
+        printf("expected %d bytes, got %d from generation\n", nbytes, gen_nbytes);
+    }
+
+    if(memcmp(code, gen, nbytes) != 0) {
+        printf("mismatch on instructions: %s\n", insts);
+        for(int i = 0; i < nbytes / 4; i++) {
+            printf("0x%x 0x%x\n", code[i], gen[i]);
+        }
+        exit(1);
+    }
 }
 
 // check a single instruction.
@@ -54,9 +84,24 @@ void insts_print(char *insts) {
 
 // helper function for reverse engineering.  you should refactor its interface
 // so your code is better.
-uint32_t emit_rrr(const char *op, const char *d, const char *s1, const char *s2) {
+uint32_t emit_rrr(const char *op, const char **d, const char **s1, const char **s2, uint32_t src_to_vary, uint32_t i) {
     char buf[1024];
-    sprintf(buf, "%s %s, %s, %s", op, d, s1, s2);
+    
+    switch (src_to_vary) {
+        case 2:
+            output("Varying d\n");
+            sprintf(buf, "%s %s, %s, %s", op, d[i], s1[0], s2[0]);
+            break;
+        case 1:
+            output("Varying s1\n");
+            sprintf(buf, "%s %s, %s, %s", op, d[0], s1[i], s2[0]);
+            break;
+        case 0:
+            output("Varying s2\n");
+            sprintf(buf, "%s %s, %s, %s", op, d[0], s1[0], s2[i]);
+            break;
+    }
+
 
     uint32_t n;
     uint32_t *c = insts_emit(&n, buf);
@@ -84,56 +129,114 @@ void derive_op_rrr(const char *name, const char *opcode,
     const char *s1 = src1[0];
     const char *s2 = src2[0];
     const char *d = dst[0];
+
+    const char** srcs[] = {src2, src1, dst};
+    const char* src_names[] = {"src2", "src1", "dst"};
+
     assert(d && s1 && s2);
 
     unsigned d_off = 0, src1_off = 0, src2_off = 0, op = ~0;
-
-    uint32_t always_0 = ~0, always_1 = ~0;
+    unsigned *offsets[] = {&src2_off, &src1_off, &d_off};
+    unsigned never_changed_all[3] = {~0, ~0, ~0};
 
     // compute any bits that changed as we vary d.
-    for(unsigned i = 0; dst[i]; i++) {
-        uint32_t u = emit_rrr(opcode, dst[i], s1, s2);
+    for(unsigned reg_i = 0; reg_i < 3; reg_i++) {
+        output("Solving for %s\n", src_names[reg_i]);
+        const char** reg_src = srcs[reg_i];
 
-        // if a bit is always 0 then it will be 1 in always_0
-        // NOTE the unary complement.
-        always_0 &= ~u;
+        uint32_t always_0 = ~0, always_1 = ~0;
 
-        // if a bit is always 1 it will be 1 in always_1, otherwise 0
-        always_1 &= u;
+        for(unsigned i = 0; reg_src[i]; i++) {
+            output("Using reg value %d: %s\n", i, reg_src[i]);
+            uint32_t u = emit_rrr(opcode, dst, src1, src2, reg_i, i);
+
+            // if a bit is always 0 then it will be 1 in always_0
+            // NOTE the unary complement.
+            always_0 &= ~u;
+
+            // if a bit is always 1 it will be 1 in always_1, otherwise 0
+            always_1 &= u;
+
+            // We can and the opcode (~0) with each instruction, as we'll
+            // eventually only extract the bits that nevere change
+            op &= u;
+        }
+
+        if(always_0 & always_1) 
+            panic("impossible overlap: always_0 = %x, always_1 %x\n", 
+                always_0, always_1);
+
+        // bits that never changed
+        never_changed_all[reg_i] = always_0 | always_1;
+        // bits that changed: these are the register bits.
+        uint32_t changed = ~never_changed_all[reg_i];
+
+        output("register %s are bits set in: %x\n", src_names[reg_i], changed);
+
+        // find the offset.  we assume register bits are contig and within 0xf
+        // N.B. For some reason ffs is one-indexed????
+        output("offset for %s is %d\n", src_names[reg_i], ffs(changed) - 1);
+        *offsets[reg_i] = ffs(changed) - 1;
+        
+        // check that bits are contig and at most 4 bits are set.
+        if(((changed >> *offsets[reg_i]) & ~0xf) != 0)
+            panic("weird instruction!  expecting at most 4 contig bits: %x\n", changed);
     }
 
-    if(always_0 & always_1) 
-        panic("impossible overlap: always_0 = %x, always_1 %x\n", 
-            always_0, always_1);
-
-    // bits that never changed
-    uint32_t never_changed = always_0 | always_1;
-    // bits that changed: these are the register bits.
-    uint32_t changed = ~never_changed;
-
-    output("register dst are bits set in: %x\n", changed);
-
-    // find the offset.  we assume register bits are contig and within 0xf
-    d_off = ffs(changed);
-    
-    // check that bits are contig and at most 4 bits are set.
-    if(((changed >> d_off) & ~0xf) != 0)
-        panic("weird instruction!  expecting at most 4 contig bits: %x\n", changed);
     // refine the opcode: note until you solve for the other registers
     // this includes s1 and s2 bits
-    op &= never_changed;
+
+    uint32_t opcode_mask = never_changed_all[0] & never_changed_all[1] & never_changed_all[2];
+    op &= opcode_mask;
     output("opcode is in =%x\n", op);
 
     // emit: NOTE: obviously, currently <src1_off>, <src2_off> are not 
     // defined (so solve for them) and opcode needs to be refined more.
     output("static int %s(uint32_t dst, uint32_t src1, uint32_t src2) {\n", name);
-    output("    return %x | (dst << %d) | (src1 << %d) | (src2 << %d)\n",
+    output("    if")
+    output("    return 0x%x | (dst << %d) | (src1 << %d) | (src2 << %d);\n",
                 op,
                 d_off,
                 src1_off,
                 src2_off);
     output("}\n");
 }
+
+
+// for(unsigned i = 0; dst[i]; i++) {
+//     uint32_t u = emit_rrr(opcode, dst[i], s1, s2);
+
+//     // if a bit is always 0 then it will be 1 in always_0
+//     // NOTE the unary complement.
+//     always_0 &= ~u;
+
+//     // if a bit is always 1 it will be 1 in always_1, otherwise 0
+//     always_1 &= u;
+// }
+
+// if(always_0 & always_1) 
+//     panic("impossible overlap: always_0 = %x, always_1 %x\n", 
+//         always_0, always_1);
+
+// // bits that never changed
+// uint32_t never_changed = always_0 | always_1;
+// // bits that changed: these are the register bits.
+// uint32_t changed = ~never_changed;
+
+// output("register dst are bits set in: %x\n", changed);
+
+// // find the offset.  we assume register bits are contig and within 0xf
+// d_off = ffs(changed);
+
+// // check that bits are contig and at most 4 bits are set.
+// if(((changed >> d_off) & ~0xf) != 0)
+//     panic("weird instruction!  expecting at most 4 contig bits: %x\n", changed);
+
+
+// // refine the opcode: note until you solve for the other registers
+// // this includes s1 and s2 bits
+// op &= never_changed;
+// output("opcode is in =%x\n", op);
 
 /*
  * 1. we start by using the compiler / assembler tool chain to get / check
@@ -178,7 +281,8 @@ int main(void) {
     check_one_inst("add r0, r0, r1", 0xe0800001);
     check_one_inst("bx lr", 0xe12fff1e);
     check_one_inst("mov r0, #1", 0xe3a00001);
-    check_one_inst("nop", 0xe320f000);
+    // check_one_inst("nop", 0xe320f000);
+    check_one_inst("nop", 0xe1a00000);
     output("success!\n");
 
     // part 3: sanity check the add encoding instruction (see armv6-insts.h)

@@ -1,5 +1,20 @@
 ## Building a redzone allocator.
 
+### Clarifications
+
+If you get a division linking error, add the following two lines that define
+`LIB` and `LIB_POST` to the `Makefile`:
+        
+        # add these two lines.
+        LIB =  $(CS240LX_2025_PATH)/lib/libgcc.a
+        LIB_POST =  $(CS240LX_2025_PATH)/lib/libgcc.a
+
+        # unchanged in the original
+        include $(CS240LX_2025_PATH)/libpi/mk/Makefile.robust-v2
+
+
+### Overview
+
 Memory corruption bugs suck.  While some people use Rust, we're going
 to try to make C less bad by attempting to check every load and store
 for safety.
@@ -147,6 +162,8 @@ it with `kr_free`.
 We need this list so that we can scan free blocks later (after a given free)
 looking for errors. 
 
+
+
 #### Change: add redzone checking
 
 You should change your `ckalloc` implementation to:
@@ -177,6 +194,15 @@ error print it out using the following format:
 Where `offset` is a negative number if the corruption was in 
 the initial redzone (before the data) and positive if its 
 in the subsequent rezone (after the data).
+
+When you find a use after free I did:
+
+            trace("\tWrote block after free!\n");
+
+Also, some of the error messages encode the routine name in them (e.g.,
+`mem_check` or `check_list`) so you'll have to call your routine the
+same thing or modify the test case.  Sorry about that --- we probably
+should have stripped the internal name out.
 
 #### Add `ck_heap_errors`
 
@@ -252,6 +278,21 @@ to make this faster:
 You can do other tricks after that.
 
 ------------------------------------------------------------------------------
+### Setup memory in a more realistic way
+
+Right now we just grab random memory in the pi address space.  This 
+is amateur hour.   What we should do (and will, but you can get a 
+jump on it) is to:
+  1. Use the mailbox interface to get the number of MB on the pi 
+     available to the ARM (you did this in lab 1).
+  2. Make a page allocator keeps track of which of the MB pages are
+     free or allocated.
+  3. Change the allocators to get their heap memory from this page allocator.
+
+We will do this pretty soon, but it's much more informative if you figure
+it out yourself.
+
+------------------------------------------------------------------------------
 ### Extension: make adult allocators
 
 Several adult moves that we should have done but didn't:
@@ -274,3 +315,6 @@ Several adult moves that we should have done but didn't:
      of `ckalloc` and `ckfree` don't change) but add additional methods that
      take a pointer to a heap structure of some kind.
 
+  4. Adapt the redzone allocator to Unix so you can quickly drop it in 
+     for your regular classes.  Ideally: run it on some old code and
+     find a bug!

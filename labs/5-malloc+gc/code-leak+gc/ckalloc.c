@@ -35,9 +35,30 @@ unsigned ck_ptr_in_block(hdr_t *h, void *ptr) {
     }
 
     // use ck_data_start/_end 
-    todo("check that <ptr> is in data for <h>\n");
+    // todo("check that <ptr> is in data for <h>\n");
+    return ck_data_start(h) <= ptr && ptr < ck_data_end(h);
 }
 
+
+static void list_remove(hdr_t **l, hdr_t *h) {
+    assert(l);
+    hdr_t *prev = *l;
+ 
+    if(prev == h) {
+        *l = h->next;
+        return;
+    }
+
+    hdr_t *p;
+    while((p = ck_next_hdr(prev))) {
+        if(p == h) {
+            prev->next = p->next;
+            return;
+        }
+        prev = p;
+    }
+    panic("did not find %p in list\n", h);
+}
 
 // free a block allocated with <ckalloc>
 void (ckfree)(void *addr, src_loc_t l) {
@@ -61,7 +82,8 @@ void (ckfree)(void *addr, src_loc_t l) {
     h->state = FREED;
 
     // just remove from the allocated list.
-    todo("implement the rest\n");
+    list_remove(&alloc_list, h);
+    assert(!ck_ptr_is_alloced(addr));
 
     kr_free(h);
 }
@@ -82,9 +104,25 @@ void *(ckalloc)(uint32_t nbytes, src_loc_t l) {
     h->block_id = block_id++;
 
     // set addr;
-    void *addr = 0;
+    void *addr = ck_data_start(h);
+    assert(!ck_ptr_is_alloced(addr)); // @joshdelg Added
 
-    todo("put on allocated list\n");
+    // todo("put on allocated list\n");
+    h->next = 0; // Just to be safe
+
+    if(!alloc_list) {
+        alloc_list = h;
+    } else {
+        hdr_t *cur = ck_first_alloc();
+        hdr_t *next = ck_next_hdr(cur);
+
+        while(next) {
+            cur = next;
+            next = ck_next_hdr(next);
+        }
+
+        cur->next = h;
+    }
 
     assert(ck_ptr_is_alloced(addr));
     if(ck_verbose_p)

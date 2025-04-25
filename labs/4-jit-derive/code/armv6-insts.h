@@ -98,6 +98,21 @@ static int arm_add(uint32_t dst, uint32_t src1, uint32_t src2) {
     return 0xe0800000 | (dst << 12) | (src1 << 16) | (src2 << 0);
 }
 
+// Generated
+static int arm_sub(uint32_t dst, uint32_t src1, uint32_t src2) {
+    return 0xe0400000 | (dst << 12) | (src1 << 16) | (src2 << 0);
+}
+
+// Generated
+static int arm_mul(uint32_t dst, uint32_t src1, uint32_t src2) {
+    return 0xe0000090 | (dst << 16) | (src1 << 0) | (src2 << 8);
+}
+
+// Generated
+static int arm_ldr(uint32_t dst, uint32_t src1, uint32_t src2) {
+    return 0xe7900000 | (dst << 12) | (src1 << 16) | (src2 << 0);
+}
+
 // <add> of an immediate
 static inline uint32_t arm_add_imm8(uint8_t rd, uint8_t rs1, uint8_t imm) {
     return arm_AL << 28 | 0b00001000 << 20 | rs1 << 16 | rd << 12 | 0b0000 << 8 | imm;

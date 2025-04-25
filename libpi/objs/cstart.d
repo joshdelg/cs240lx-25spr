@@ -4,6 +4,7 @@ objs/cstart.o: staff-src/cstart.c \
  /Users/joshdelg/cs240lx-25spr//libpi/include/gpio.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-constants.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/your-prototypes.h \
+ /Users/joshdelg/cs240lx-25spr//libpi/libc/rpi-rand.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/cycle-count.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/memmap.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/redzone.h
@@ -17,6 +18,8 @@ objs/cstart.o: staff-src/cstart.c \
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-constants.h:
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/your-prototypes.h:
+
+/Users/joshdelg/cs240lx-25spr//libpi/libc/rpi-rand.h:
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/cycle-count.h:
 

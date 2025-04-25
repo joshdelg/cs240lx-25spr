@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "pi-random.h": "c",
+        "libunix.h": "c"
+    }
+}

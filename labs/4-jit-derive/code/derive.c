@@ -86,22 +86,38 @@ void insts_print(char *insts) {
 // so your code is better.
 uint32_t emit_rrr(const char *op, const char **d, const char **s1, const char **s2, uint32_t src_to_vary, uint32_t i) {
     char buf[1024];
-    
-    switch (src_to_vary) {
-        case 2:
-            output("Varying d\n");
-            sprintf(buf, "%s %s, %s, %s", op, d[i], s1[0], s2[0]);
-            break;
-        case 1:
-            output("Varying s1\n");
-            sprintf(buf, "%s %s, %s, %s", op, d[0], s1[i], s2[0]);
-            break;
-        case 0:
-            output("Varying s2\n");
-            sprintf(buf, "%s %s, %s, %s", op, d[0], s1[0], s2[i]);
-            break;
-    }
 
+    if (strcmp(op, "ldr") == 0) {
+        switch (src_to_vary) {
+            case 2:
+                // output("Varying d\n");
+                sprintf(buf, "%s %s, [%s, %s]", op, d[i], s1[0], s2[0]);
+                break;
+            case 1:
+                // output("Varying s1\n");
+                sprintf(buf, "%s %s, [%s, %s]", op, d[0], s1[i], s2[0]);
+                break;
+            case 0:
+                // output("Varying s2\n");
+                sprintf(buf, "%s %s, [%s, %s]", op, d[0], s1[0], s2[i]);
+                break;
+        }
+    } else {
+        switch (src_to_vary) {
+            case 2:
+                // output("Varying d\n");
+                sprintf(buf, "%s %s, %s, %s", op, d[i], s1[0], s2[0]);
+                break;
+            case 1:
+                // output("Varying s1\n");
+                sprintf(buf, "%s %s, %s, %s", op, d[0], s1[i], s2[0]);
+                break;
+            case 0:
+                // output("Varying s2\n");
+                sprintf(buf, "%s %s, %s, %s", op, d[0], s1[0], s2[i]);
+                break;
+        }
+    }
 
     uint32_t n;
     uint32_t *c = insts_emit(&n, buf);
@@ -141,13 +157,13 @@ void derive_op_rrr(const char *name, const char *opcode,
 
     // compute any bits that changed as we vary d.
     for(unsigned reg_i = 0; reg_i < 3; reg_i++) {
-        output("Solving for %s\n", src_names[reg_i]);
+        // output("Solving for %s\n", src_names[reg_i]);
         const char** reg_src = srcs[reg_i];
 
         uint32_t always_0 = ~0, always_1 = ~0;
 
         for(unsigned i = 0; reg_src[i]; i++) {
-            output("Using reg value %d: %s\n", i, reg_src[i]);
+            // output("Using reg value %d: %s\n", i, reg_src[i]);
             uint32_t u = emit_rrr(opcode, dst, src1, src2, reg_i, i);
 
             // if a bit is always 0 then it will be 1 in always_0
@@ -193,7 +209,6 @@ void derive_op_rrr(const char *name, const char *opcode,
     // emit: NOTE: obviously, currently <src1_off>, <src2_off> are not 
     // defined (so solve for them) and opcode needs to be refined more.
     output("static int %s(uint32_t dst, uint32_t src1, uint32_t src2) {\n", name);
-    output("    if")
     output("    return 0x%x | (dst << %d) | (src1 << %d) | (src2 << %d);\n",
                 op,
                 d_off,
@@ -201,42 +216,6 @@ void derive_op_rrr(const char *name, const char *opcode,
                 src2_off);
     output("}\n");
 }
-
-
-// for(unsigned i = 0; dst[i]; i++) {
-//     uint32_t u = emit_rrr(opcode, dst[i], s1, s2);
-
-//     // if a bit is always 0 then it will be 1 in always_0
-//     // NOTE the unary complement.
-//     always_0 &= ~u;
-
-//     // if a bit is always 1 it will be 1 in always_1, otherwise 0
-//     always_1 &= u;
-// }
-
-// if(always_0 & always_1) 
-//     panic("impossible overlap: always_0 = %x, always_1 %x\n", 
-//         always_0, always_1);
-
-// // bits that never changed
-// uint32_t never_changed = always_0 | always_1;
-// // bits that changed: these are the register bits.
-// uint32_t changed = ~never_changed;
-
-// output("register dst are bits set in: %x\n", changed);
-
-// // find the offset.  we assume register bits are contig and within 0xf
-// d_off = ffs(changed);
-
-// // check that bits are contig and at most 4 bits are set.
-// if(((changed >> d_off) & ~0xf) != 0)
-//     panic("weird instruction!  expecting at most 4 contig bits: %x\n", changed);
-
-
-// // refine the opcode: note until you solve for the other registers
-// // this includes s1 and s2 bits
-// op &= never_changed;
-// output("opcode is in =%x\n", op);
 
 /*
  * 1. we start by using the compiler / assembler tool chain to get / check
@@ -294,6 +273,7 @@ int main(void) {
     check_one_inst("add r9, r10, r11", arm_add(arm_r9, arm_r10, arm_r11));
     check_one_inst("add r12, r13, r14", arm_add(arm_r12, arm_r13, arm_r14));
     check_one_inst("add r15, r7, r3", arm_add(arm_r15, arm_r7, arm_r3));
+
     output("success!\n");
 
     // part 4: implement the code so it will derive the add instruction.
@@ -306,9 +286,71 @@ int main(void) {
                 0 
     };
 
+    const char *all_regs_except_r15[] = {
+        "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
+        "r8", "r9", "r10", "r11", "r12", "r13", "r14", 0
+    };
+
     // XXX: should probably pass a bitmask in instead.
-    derive_op_rrr("arm_add", "add", all_regs,all_regs,all_regs);
+    // derive_op_rrr("arm_add", "add", all_regs,all_regs,all_regs);
+    // derive_op_rrr("arm_sub", "sub", all_regs,all_regs,all_regs);
+    // derive_op_rrr("arm_mul", "mul", all_regs_except_r15,all_regs_except_r15,all_regs_except_r15);
+    // derive_op_rrr("arm_ldr", "ldr", all_regs_except_r15,all_regs_except_r15,all_regs_except_r15);
     output("did something: now use the generated code in the checks above!\n");
+
+    output("Check generated functions:\n");
+    char buf[16 * 16 * 16 * 4 * 32]; // Estimate of size needed for all instructions
+    size_t buf_off = 0;
+    uint32_t code[16 * 16 * 16 * 4];
+    size_t code_ptr = 0;
+
+    for(int dst_i = 0; dst_i < 16; dst_i++) {
+        for(int src1_i = 0; src1_i < 16; src1_i++) {
+            for(int src2_i = 0; src2_i < 16; src2_i++) {
+                const char *dst = all_regs[dst_i];
+                const char *src1 = all_regs[src1_i];
+                const char *src2 = all_regs[src2_i];
+
+                buf_off += sprintf(&buf[buf_off], "add %s, %s, %s", dst, src1, src2);
+                buf[buf_off++] = '\n'; // Overwrite \0 with \n
+
+                code[code_ptr++] = arm_add(dst_i, src1_i, src2_i);
+
+                buf_off += sprintf(&buf[buf_off], "sub %s, %s, %s", dst, src1, src2);
+                buf[buf_off++] = '\n'; // Overwrite \0 with \n
+
+                code[code_ptr++] = arm_sub(dst_i, src1_i, src2_i);
+
+                if(dst_i != 15 && src1_i != 15 && src2_i != 15) {
+                    buf_off += sprintf(&buf[buf_off], "mul %s, %s, %s", dst, src1, src2);
+                    buf[buf_off++] = '\n'; // Overwrite \0 with \n
+
+                    code[code_ptr++] = arm_mul(dst_i, src1_i, src2_i);
+
+                    buf_off += sprintf(&buf[buf_off], "ldr %s, [%s, %s]", dst, src1, src2);
+                    buf[buf_off++] = '\n'; // Overwrite \0 with \n
+
+                    code[code_ptr++] = arm_ldr(dst_i, src1_i, src2_i);
+                }
+
+
+                
+                // check_one_inst(buf, arm_add(dst_i, src1_i, src2_i));
+                
+
+                // check_one_inst("sub r0, r1, r2", arm_sub(arm_r0, arm_r1, arm_r2));
+
+                // if(dst_i != 15 && src1_i != 15 && src2_i != 15) check_one_inst("mul r0, r1, r2", arm_mul(arm_r0, arm_r1, arm_r2));
+
+                // if(dst_i != 15 && src1_i != 15 && src2_i != 15) check_one_inst("ldr r0, [r1, r2]", arm_ldr(arm_r0, arm_r1, arm_r2));
+            }
+        }
+    }
+
+    buf[buf_off++] = '\0';
+    insts_check(buf, code, code_ptr * 4);
+
+    output("All generated functions succeeded!\n");
 
     // NOW:
     //   1. get the encodings for other instructions you used.

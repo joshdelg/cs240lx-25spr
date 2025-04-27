@@ -1,5 +1,17 @@
 ## Using an i2c mems-based IMU (accelerometer + gyroscope)
 
+### Errata
+
+Note: 
+ - We updated libpi to use floating point halfway through the
+   lab.  This means if you do a pull and compile using the staff
+   staff-mpu-6050.o it won't link.  We added a staff-mpu-6050-fp.o that
+   should work.
+
+
+### Overview
+
+
 <p align="center">
   <img src="images/robot-pi.png" width="450" />
 </p>
@@ -78,6 +90,10 @@ Some other documents in no particular order:
     - An adult one is to do the 9250 or Polou IMU.
     - An OS one is to write your own I2C driver --- if you do this
       let us know, since there are some pointers.
+    - If you want a cool drone extension pull in madgewick
+      calculations (see the end of this README) and do something with
+      them.   Ashwin'22 3-D printed a gimble and used these values to
+      control where it pointed.
 
 Alternatively, you can just do hard (Daniel) mode:
  - You can easily ignore our starter code and write everything from
@@ -246,18 +262,81 @@ can use to do a bit-banged version.
 
 The broadcom document pages 28---36 describes the hardware i2c.
 
-You'll notice that the i2c datasheet looks similar to UART
-(fixed-size FIFO queue for transmit and receive, the need to check
-if data or space is available, control over speed, errata, etc).
-The more devices you do the more you'll notice they share common
-patterns.  The nice thing: there exists an N s.t. after doing N
-devices, doing N+1 is pretty quick.
+You'll notice that the i2c datasheet looks similar to UART (fixed-size
+FIFO queue for transmit and receive, the need to check if data or space
+is available, control over speed, errata, etc).  The more devices you
+do the more you'll notice they share common patterns.  The nice thing:
+there exists an N s.t. after doing N devices, doing N+1 is pretty quick.
 
+---------------------------------------------------------------------------
+### Extension: self test
+
+A constant problem with devices checking if the output is garbage.
+This can happen because the hardware is broken, it's a cheap counterfeit,
+or (most likely) because our initial code is broken.  There usually isn't
+any ground truth to compare to and broken devices (and broken code) may
+not render the device inoperable, but instead just produce bogus values.
+(A common one today: swapping the high and low bytes of the readings or
+not sign extending.)
+
+Fortunately, accel and gyros often have a "self-test" mode that can be
+used to check for such problems.
+
+The mpu 6050 register map document talks about self-test in Section 4
+(page 9-12). Where you compare the readings obtained in self-test
+mode to the "factory trim" and compute the percentage difference.
+
+For the gyro (register map, p 10):
+  1. Full-scale range should be +/- 250dps.
+  2. You read the factory trim settings using registers 13-15 (p6) and
+     using the low five bits (bit 0 to bit 4 inclusive) 
+
+  3. You compute the percentage difference as follows:
+
+         (Self-test - Factory Trim)
+          -----------------------
+               Factory Trim
+
+  4. Acceptable is within +/- 14%.  Anything more than that is a reject.
+
+If you need floating point, look in: [../../guides/using-float](../../guides/using-float).  Hopefully "it just works" after you change the Makefile.
+ 
 ---------------------------------------------------------------------------
 ### Extension: multiple devices + i2c
 
 If you have your own i2c, you can easily hook up more than one device.
 This is a good step towards a sensor glove or a wearable harness.
+
+---------------------------------------------------------------------------
+### Madgewick
+
+The directory `example-madgewick` has some examples of using madgewick
+calculations to determine position.
+
+
+The directory: `imu/src` has a madgwick implementation to fuse gyro, accel
+and mag.  The `madgwick-blake` directory has a version that fuses gyro
+and accel.  They give euler angles as well as other location indications.
+
+
+
+When you run it, you'll get something like:
+
+        Time (s): 1.169999, roll: -3.184346, pitch: 3.179441, yaw: -0.88397
+        Time (s): 1.179999, roll: -3.123109, pitch: 3.118479, yaw: -0.85033
+        Time (s): 1.189999, roll: -3.184346, pitch: 3.179441, yaw: -0.88397
+        Time (s): 1.199999, roll: -3.123109, pitch: 3.118479, yaw: -0.85033
+        Time (s): 1.209999, roll: -3.184346, pitch: 3.179441, yaw: -0.88397
+        Time (s): 1.220000, roll: -3.123109, pitch: 3.118479, yaw: -0.85033
+        Time (s): 1.230000, roll: -3.184346, pitch: 3.179441, yaw: -0.88397
+        Time (s): 1.240000, roll: -3.123109, pitch: 3.118479, yaw: -0.85033
+        Time (s): 1.250000, roll: -3.184346, pitch: 3.179441, yaw: -0.88397
+
+I didn't have time to figure out how to use this so: great final project!
+
+
+If you need floating point, look in: [../../guides/using-float](../../guides/using-float).
+
 
 ---------------------------------------------------------------------------
 ### Some Legit Extensions

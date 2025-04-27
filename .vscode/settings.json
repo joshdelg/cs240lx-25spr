@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "pi-random.h": "c",
-        "libunix.h": "c"
+        "libunix.h": "c",
+        "__string": "c",
+        "atomic": "c",
+        "cstring": "c",
+        "rpi.h": "c"
     }
 }

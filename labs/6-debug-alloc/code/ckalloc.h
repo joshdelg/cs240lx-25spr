@@ -104,6 +104,11 @@ hdr_t *ck_ptr_is_alloced(void *ptr);
 void *(ckalloc)(uint32_t nbytes, src_loc_t loc);
 void (ckfree)(void *addr, src_loc_t loc);
 
+// #define ckalloc_fast(_n) (ckalloc_fast)(_n, SRC_LOC_MK())
+// #define ckfree_fast(_ptr) (ckfree_fast)(_ptr, SRC_LOC_MK())
+void *(ckalloc_fast)(uint32_t nbytes, src_loc_t loc);   
+void (ckfree_fast)(void *addr, src_loc_t loc);
+
 // integrity check the allocated / freed blocks in the heap
 //
 // returns number of errors in the heap.   stops checking

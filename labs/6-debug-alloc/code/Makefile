@@ -8,9 +8,9 @@
 # PROGS := tests/part1-test6-bugs.c
 
 # # all the tests.
-# PROGS := $(wildcard tests/part1-test[0-9]*.c)
+PROGS := $(wildcard tests/part1-test[0-9]*.c)
 
-PROGS := tests/ext-time-alloc.c
+# PROGS := tests/ext-time-alloc.c
 
 COMMON_SRC = kr-malloc.c
 # STAFF_OBJS += staff-kr-malloc.o

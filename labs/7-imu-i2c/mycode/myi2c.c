@@ -32,8 +32,9 @@ uint32_t my_i2c_check_transfer_done(void) {
 }
 
 void my_i2c_clear_transfer_done(void) {
-    uint32_t i2c_status = GET32(I2C_STATUS);
-    PUT32(I2C_STATUS, i2c_status | (1 << 1));
+    // uint32_t i2c_status = GET32(I2C_STATUS);
+    // PUT32(I2C_STATUS, i2c_status | (1 << 1));
+    PUT32(I2C_STATUS, 1 << 1);
 }
 
 uint32_t my_i2c_check_transfer_active(void) {
@@ -113,116 +114,44 @@ uint32_t my_i2c_read_nbytes(uint32_t nbytes, uint32_t addr, uint8_t *buf) {
     // Wait until transfer not active
 	while(my_i2c_check_transfer_active()) {/* ¯\_(ツ)_/¯ */}
 
-	// Check that FIFO is empty, no clock stretch or erros (Pg. 31-32)
-	unsigned status = GET32(I2C_STATUS);
-	if(!(status & (1 << 6))) panic("Trying to read while FIFO not empty :(\n");
+    if(!my_i2c_check_fifo_empty()) panic("Trying to read while FIFO not empty :(\n");
 	my_i2c_check_err();
 
-	// Set follower device address (Pg. 33)
-	PUT32(I2C_A, addr);
+    my_i2c_set_secondary_addr(addr);
 
 	// Set dlen (Pg. 32)
-	PUT32(I2C_DLEN, nbytes);
+    my_i2c_set_transfer_length(nbytes);
 
-	// Set to read mode and start! (!!RMW!!) (Pg. 30)
-	unsigned control = GET32(I2C_CTRL);
-	control = bit_set(control, 0);
-	control = bit_set(control, 7);
-	PUT32(I2C_CTRL, control);
+
+    my_i2c_set_transfer_type(1);
+    my_i2c_start_transfer();
 
 	// Wait until transfer has started
 	while(!my_i2c_check_transfer_active()) {/* ¯\_(ツ)_/¯ */}
 
 	// Read nbytes of data
 	for(int i = 0; i < nbytes; i++) {
-		unsigned status = GET32(I2C_STATUS);
 
-		while((status & (1 << 5)) == 0) {
-			status = GET32(I2C_STATUS);
-		}
-
+        while(!my_i2c_fifo_has_data()) {/* ¯\_(ツ)_/¯ */}
 		buf[i] = my_i2c_read_fifo();
 	}
 
 	// Wait until DONE received
-	while(!(GET32(I2C_STATUS) & (1 << 1))) {/* ¯\_(ツ)_/¯ */}
+	while(!my_i2c_check_transfer_done()) {/* ¯\_(ツ)_/¯ */}
 
-	status = GET32(I2C_STATUS);
-	if(status & 1) panic("Weird! Done recieved but transfer still active??\n");
+    if(my_i2c_check_transfer_active()) {
+        panic("Read finished but transfer still active\n");
+    }
 
 	// Check for errors
     my_i2c_check_err();
 
 	// Clear done!
-	PUT32(I2C_STATUS, 1 << 1);
+    my_i2c_clear_transfer_done();
 
 	dev_barrier();
 
 	return 1;
-    // dev_barrier();
-    
-    // trace("Starting read...\n");
-    // trace("Waiting until no transfer active..\n");
-    // while(my_i2c_check_transfer_active()) { /* Spin */ }
-    // trace("No transfer active\n");
-
-    // // // assert(my_i2c_fifo_has_data());
-    // // trace("Waiting until FIFO has data...\n");
-    // // // while(!my_i2c_fifo_has_data()) { /* Spin */ }
-    // // // trace("FIFO has data\n");
-    // // if(!my_i2c_fifo_has_data()) {
-    // //     panic("FIFO has no data\n");
-    // // }
-
-    // // Check that FIFO is empty (???)
-    // trace("Checking FIFO empty...\n");
-    // if(!my_i2c_check_fifo_empty()) {
-    //     panic("Attempting to read while FIFO is not empty!\n");
-    // }
-    // trace("FIFO empty\n");
-
-    // my_i2c_check_err();
-
-    // trace("Setting transfer len %d, add %d, type 1 (read)\n", nbytes, addr);
-    // my_i2c_set_transfer_length(nbytes);
-    // my_i2c_set_secondary_addr(addr);
-    // // my_i2c_set_transfer_type(1);
-    // // trace("Starting transfer...\n");
-
-    // // my_i2c_start_transfer();
-
-    // // Set to read mode and start! (!!RMW!!) (Pg. 30)
-	// unsigned control = GET32(I2C_CTRL);
-	// control = bit_set(control, 0);
-	// control = bit_set(control, 7);
-	// PUT32(I2C_CTRL, control);
-
-    // trace("Waiting until transfer active...\n");
-    // while(!my_i2c_check_transfer_active()) { /* Spin */ }
-    // trace("Transfer active\n");
-
-    // for(int i = 0; i < nbytes; i++) {
-    //     trace("Byte %d\n", i);
-    //     trace("Waiting until FIFO has data...\n");
-    //     while(!my_i2c_fifo_has_data()) { /* Spin */ }
-    //     trace("FIFO has data, reading...\n");
-    //     buf[i] = my_i2c_read_fifo();
-    // }
-
-    // trace("Waiting until transfer done...\n");
-    // while(!my_i2c_check_transfer_done()) { /* Spin */ }
-    // trace("Transfer done\n");
-
-    // assert(!my_i2c_check_transfer_active());
-    // my_i2c_check_err();
-
-    // trace("Clearing transfer done...\n");
-    // my_i2c_clear_transfer_done();
-    // trace("Status reg is %x\n", GET32(I2C_STATUS));
-
-    // dev_barrier();
-
-    // return nbytes;
 }
 
 uint32_t my_i2c_write_nbytes(uint32_t nbytes, uint32_t addr, uint8_t *buf) {
@@ -231,113 +160,42 @@ uint32_t my_i2c_write_nbytes(uint32_t nbytes, uint32_t addr, uint8_t *buf) {
     // Wait until transfer not active
 	while(my_i2c_check_transfer_active()) {/* ¯\_(ツ)_/¯ */}
 
-	// Check that FIFO is empty, no clock stretch or erros (Pg. 31-32)
-	unsigned status = GET32(I2C_STATUS);
-	if((status & (1 << 6)) == 0) panic("Trying to write while FIFO not empty :(\n");
+    if(!my_i2c_check_fifo_empty()) panic("Trying to write while FIFO not empty :(\n");
 	my_i2c_check_err();
 
-	// Set follower device address (Pg. 33)
-	PUT32(I2C_A, addr);
+    my_i2c_set_secondary_addr(addr);
 
-	// Set dlen (Pg. 32)
-	PUT32(I2C_DLEN, nbytes);
+    my_i2c_set_transfer_length(nbytes);
 
-	// Set to write mode and start! (!!RMW!!) (Pg. 30)
-	unsigned control = GET32(I2C_CTRL);
-	control = bit_clr(control, 0);
-	control = bit_set(control, 7);
-	PUT32(I2C_CTRL, control);
+    my_i2c_set_transfer_type(0);
+    my_i2c_start_transfer();
 
 	// Wait until transfer has started
 	while(!my_i2c_check_transfer_active()) {/* ¯\_(ツ)_/¯ */}
 
 	// Write nbytes of data
 	for(int i = 0; i < nbytes; i++) {
-		unsigned status = GET32(I2C_STATUS);
-		while((status & (1 << 4)) == 0) {
-			status = GET32(I2C_STATUS);
-		}
+        while(!my_i2c_fifo_has_space()) {/* ¯\_(ツ)_/¯ */}
 
 		my_i2c_write_fifo(buf[i]);
 	}
 
 	// Wait until DONE received
-	while(!(GET32(I2C_STATUS) & (1 << 1))) {/* ¯\_(ツ)_/¯ */}
+	while(!my_i2c_check_transfer_done()) {/* ¯\_(ツ)_/¯ */}
 
-	status = GET32(I2C_STATUS);
-	if(status & 1) panic("Weird! Done recieved but transfer still active??\n");
+
+    if(my_i2c_check_transfer_active()) {
+        panic("Weird! Done recieved but transfer still active??\n");
+    }
 
 	// Check for errors
 	my_i2c_check_err();
 
 	// Clear done!
-	PUT32(I2C_STATUS, 1 << 1);
+    my_i2c_clear_transfer_done();
 	dev_barrier();
 
 	return 1;
-    // dev_barrier();
-
-    // trace("Waiting until transfer not active...\n");
-    // while(my_i2c_check_transfer_active()) { /* Spin */ }
-    // trace("Transfer not active\n");
-
-    // trace("Checking FIFO empty...\n");
-    // if(!my_i2c_check_fifo_empty()) {
-    //     panic("Attempting to write while FIFO is not empty!\n");
-    // }
-    // trace("FIFO empty\n");
-
-    // trace("Checking for errors...\n");
-    // my_i2c_check_err();
-    // trace("No errors\n");
-
-    // trace("Setting transfer length...\n");
-    // my_i2c_set_transfer_length(nbytes);
-    // trace("Setting secondary address...\n");
-    // my_i2c_set_secondary_addr(addr);
-    // trace("Setting transfer type...\n");
-    // // my_i2c_set_transfer_type(0);
-    // // trace("Setup done\n");
-
-    // // trace("Starting transfer...\n");
-    // // my_i2c_start_transfer();
-
-    // // Set to write mode and start! (!!RMW!!) (Pg. 30)
-	// unsigned control = GET32(I2C_CTRL);
-	// control = bit_clr(control, 0);
-	// control = bit_set(control, 7);
-	// PUT32(I2C_CTRL, control);
-
-    
-
-    // trace("Waiting until transfer active...\n");
-    // while(!my_i2c_check_transfer_active()) { /* Spin */ }
-    // trace("Transfer active\n");
-
-    // for(int i = 0; i < nbytes; i++) {
-    //     // TODO: We should just wait until it has space instead
-    //     trace("Byte %d waiting until FIFO has space...\n", i);
-    //     while(!my_i2c_fifo_has_space()) { /* Spin */ }
-
-    //     trace("Writing byte %d to FIFO...\n", i);
-    //     my_i2c_write_fifo(buf[i]);
-    // }
-
-    // trace("Waiting until transfer done...\n");
-    // while(!my_i2c_check_transfer_done()) { /* Spin */ }
-    // trace("Transfer done\n");
-
-    // assert(!my_i2c_check_transfer_active());
-
-    // my_i2c_check_err();
-
-    // trace("Clearing transfer done...\n");
-    // my_i2c_clear_transfer_done();
-    // trace("Status reg is %x\n", GET32(I2C_STATUS));
-
-    // dev_barrier();
-
-    // return nbytes;
 }
 
 uint32_t my_i2c_check_fifo_empty() {

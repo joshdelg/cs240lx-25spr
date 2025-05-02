@@ -3,16 +3,27 @@
 #include "mpu-driver.h"
 
 void notmain() {
+    output("Starting!\n");
     delay_ms(100);
+    output("Calling i2c init\n");
     my_i2c_init();
     delay_ms(100);
 
+    output("Calling mpu init\n");
     mpu_init();
+    output("Finished mpu init\n");
     mpu_accel_init(ACCEL_SCALE_2G);
     mpu_gyro_init(GYRO_SCALE_250);
 
     uint32_t whoami = mpu_whoami();
     output("MPU WHOAMI = 0x%x\n", whoami);
+
+    delay_ms(250);
+
+    // Run self test
+    mpu_gyro_self_test();
+
+
 
     for(int i = 0; i < 10; i++) {
         while(!mpu_intr_status()) {}

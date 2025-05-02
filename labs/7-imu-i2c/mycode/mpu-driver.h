@@ -26,7 +26,11 @@ enum {
     GYRO_YOUT_H = 69,
     GYRO_YOUT_L = 70,
     GYRO_ZOUT_H = 71,
-    GYRO_ZOUT_L = 72
+    GYRO_ZOUT_L = 72,
+    SELF_TEST_13 = 13,
+    SELF_TEST_14 = 14,
+    SELF_TEST_15 = 15,
+    SELF_TEST_16 = 16
 };
 
 typedef enum {
@@ -77,5 +81,7 @@ int16_t     mpu_convert_accel(int16_t val);
 
 gyro_rd_t   mpu_read_gyro(void);
 int16_t     mpu_convert_gyro(int16_t val);
+
+uint16_t mpu_gyro_self_test(void);
 
 #endif

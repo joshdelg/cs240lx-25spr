@@ -2,6 +2,8 @@
 #include "myi2c.h"
 #include "mpu-driver.h"
 #include "gpio.h"
+#include "rpi-math.h"
+#include "bit-support.h"
 
 void mpu_init() {
     // Tell MPU to reset
@@ -118,4 +120,83 @@ int16_t mpu_convert_gyro(int16_t val) {
     }
 
     return (int16_t) (val * 1000) / multiplier;
+    return val;
+}
+
+accel_rd_t mpu_get_self_test_accel(void) {
+    uint16_t x = (mpu_read(SELF_TEST_13) & 0b11100000) >> 3;
+    x |= (mpu_read(SELF_TEST_16) & 0b00110000) >> 4;
+
+    uint16_t y = (mpu_read(SELF_TEST_14) & 0b11100000) >> 3;
+    y |= (mpu_read(SELF_TEST_16) & 0b00001100) >> 2;
+
+    uint16_t z = (mpu_read(SELF_TEST_15) & 0b11100000) >> 3;
+    z |= (mpu_read(SELF_TEST_16) & 0b00000011);
+
+    return (accel_rd_t) { .x = x, .y = y, .z = z };
+}
+
+gyro_rd_t mpu_get_self_test_gyro(void) {
+    uint16_t x = (mpu_read(SELF_TEST_13) & 0b00011111);
+
+    uint16_t y = (mpu_read(SELF_TEST_14) & 0b00011111);
+
+    uint16_t z = (mpu_read(SELF_TEST_15) & 0b00011111);
+
+    return (gyro_rd_t) { .x = x, .y = y, .z = z };
+}
+
+void mpu_gryo_init_self_test(void) {
+
+}
+
+uint16_t mpu_gyro_self_test(void) {
+    // Read without self test
+    gyro_rd_t init = mpu_read_gyro();
+
+    // Enable self test
+    uint8_t val = mpu_read(GYRO_CONFIG);
+    val = bit_set(val, 7);
+    val = bit_set(val, 6);
+    val = bit_set(val, 5);
+
+    mpu_write(GYRO_CONFIG, val);
+
+    delay_ms(250);
+
+    for(int i = 0; i < 20; i++) {
+        while(!mpu_intr_status()) {}
+
+        mpu_read_gyro(); // Ignore
+    }
+
+    gyro_rd_t vals = mpu_read_gyro();
+
+    gyro_rd_t ft = mpu_get_self_test_gyro();
+
+    float str_x = (float)init.x - (float)vals.x;
+    float str_y = (float)init.y - (float)vals.y;
+    float str_z = (float)init.z - (float)vals.z;
+
+    output("str_x = %f\n", str_x);
+    output("str_y = %f\n", str_y);
+    output("str_z = %f\n", str_z);
+
+    float ft_z =  25. * 131. * powf(1.046, ft.z - 1.);
+    float ft_x =  25. * 131. * powf(1.046, ft.x - 1.);
+    float ft_y = -25. * 131. * powf(1.046, ft.y - 1.);
+
+    output("ft_x = %f\n", ft_x);
+    output("ft_y = %f\n", ft_y);
+    output("ft_z = %f\n", ft_z);
+
+    float diff_x = 100 + ((str_x - ft_x) / (ft_x + str_x)) * 100;
+    float diff_y = 100 + ((str_y - ft_y) / (ft_y + str_y)) * 100;
+    float diff_z = 100 + ((str_z - ft_z) / (ft_z + str_z)) * 100;
+
+    output("diff_x = %f\n", diff_x);
+    output("diff_y = %f\n", diff_y);
+    output("diff_z = %f\n", diff_z);
+
+    return 1;
 }

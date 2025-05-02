@@ -178,7 +178,29 @@ MK_TRAMPOLINE(interrupt,        4, int_vector)
 
 @ note: you'll want to customize this trampoline yourself 
 @ so you can have clean copies of the PMU counters.
-MK_TRAMPOLINE(prefetch_abort,   4, prefetch_abort_vector)
+# MK_TRAMPOLINE(prefetch_abort,   4, prefetch_abort_vector)
+
+prefetch_abort:
+    @ Get cycle count -- End of instruction
+    MRC p15, 0, sp, c15, c12, 1
+
+    @ Store sp in Priv. Thread/PID reg - 
+    MCR p15, 0, sp, c13, c0, 4
+
+    sub   lr, lr, #(4);
+    mov sp, #INT_STACK_ADDR;
+    push  {r0-r12,lr};
+    mov   r0, lr;
+    bl    prefetch_abort_vector;
+    pop   {r0-r12,lr};
+
+    @ Get cycle count -- Start of instruction
+    MRC p15, 0, sp, c15, c12, 1
+
+    @ Move to User Thread/PID reg.
+    MCR p15, 0, sp, c13, c0, 2
+
+    movs    pc, lr
 
 @ we only expect <prefetch_abort> and <syscall> to get invoked.
 @ everything else will call a panic handler that dies (see

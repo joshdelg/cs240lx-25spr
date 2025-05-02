@@ -14,5 +14,6 @@ void notmain(void) {
     output("done: %d instructions!\n", n);
 
     // this should dump out the counts.
+    pixie_verbose(1);
     pixie_dump(10);
 }

@@ -1,5 +1,51 @@
 ## I2C
 
+### Errata
+
+Two big changes for software I2c.
+
+First,  delete the checking if the pin is input or output and always
+set it to the right thing.   Just delete:
+
+        unsigned SCL_is_input_p:1;
+        unsigned SDA_is_input_p:1;
+
+Second, My I2C looks slightly different from the wikipedia.  
+I send a 1 as the last bit on the last byte:
+
+```
+// Read a byte from I2C bus
+uint8_t i2c_read_byte(i2c_t *h, bool done_p) {
+    uint8_t byte = 0;
+
+    // msb reads
+    for (unsigned bit = 0; bit < 8; ++bit)
+        byte = (byte << 1) | i2c_read_bit(h);
+
+    // if it's the last byte, <done_p>=1
+    i2c_write_bit(h, done_p);
+    return byte;
+}
+
+
+int sw_i2c_read(i2c_t *h, uint8_t data[], unsigned nbytes) {
+    i2c_start_cond(h);  // xfer start
+
+    // send address for read: low bit is 1
+    if(!i2c_write_byte(h, h->addr<<1|1))
+        panic("nake: failed to write byte\n");
+
+    // write a bit after each bit: are we done?
+    for(unsigned i = 0; i < nbytes; i++)
+        data[i] = i2c_read_byte(h, i==(nbytes-1));
+
+    i2c_stop_cond(h);  // xfer end
+    return 1;
+}
+```
+
+### overview
+
 Since this is midterm week, we'll do a low-key device lab by building
 the main black box of the IMU lab: the i2c device driver.
 
@@ -26,12 +72,12 @@ the hardware i2c in the bcm2835 and a bit-banged version.
 Checkoff:
   1. i2c hardware driver.  Should drop into last lab and give sensible
      values.  
-  2. i2c software driver.  Should drop into last lab and give sensible
-     values.  
+  2. ***this is now an extension***: i2c software driver.  Should drop
+     into last lab and give sensible values.
+
   3. Both of these should pass the gyro and accel self-test.  Self-
      test was optional from last lab but it found so many issues
      in code that we're adding it as a requirement for today's lab.
-  
 
 ------------------------------------------------------------------------------
 ### 1. hardware I2C driver: `code-i2c/i2c.c`
@@ -57,13 +103,7 @@ Hints:
   3. In general: Make sure you have device barriers when setting GPIO and I2C.  
      Along with when we enter and leave the routines.
 
-
-
 You can see that the GPIO SCL and SDA pins are pins 2 and 3.
-
-
-
-
 
 Initialization: `i2c_init`
 
@@ -425,7 +465,8 @@ typedef struct i2c {
     uint8_t SCL;
     uint8_t SDA;
 
-    // these can switch back and forth. 
+    // XXX: NOTE: we eliminated the use of is_input_p
+    // just cut this.
     unsigned SCL_is_input_p:1;
     unsigned SDA_is_input_p:1;
 } i2c_t;
@@ -435,17 +476,10 @@ During initialization you should set the SCL and SDA pins to
    1. Input.
    2. Pullups (`gpio_set_pullup`).
 
-Then during use, just rely on the `is_input_p` fields to check the
-state of a pin.  
-  1. If it's input, and you need it to be output, switch it and set
-     the `input_p` field to 0.
-  2. If it's output and you need it to be input, switch it and 
-     set the `input_p` field to 1.
-  3. If it's input and you need it to be input, or output and you
-     need output: do nothing.
+Then:
+   1. If you want to "write" a 1: Set the pin to `gpio_input`.
+   2. If you want to write a 0: set the pin to `gpio_output` and write a 0.
 
-Having dynamic checks will add some cycles, but they are negligible here
-and they make it trivial to avoid bugs.
 
 #### What to do first
 

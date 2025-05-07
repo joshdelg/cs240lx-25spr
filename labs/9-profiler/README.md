@@ -100,9 +100,9 @@ The basic algorithm:
  2. In the fault handler, use the program counter value (register 15)
     to index into this array and increment the associated count.  
 
-    NOTE: its very easy to mess up sizes.  Each instruction is 4 bytes,
-    so you'll divide the `pc` by 4.  You'll want to subtract where the
-    code starts (0x800).
+    NOTE: its very easy to mess up sizes.  Each instruction is 4 bytes, so
+    you'll divide the `pc` by 4.  You'll want to subtract where the code
+    starts (from our `memmap` we expect `__code_start__` to be `0x8000`).
 
  3. `pixie_dump(N)`: the easiest acceptable way to build this is to 
     just dump out any instruction with a higher than N count in order.
@@ -189,15 +189,17 @@ these it's interesting.
 
 We have cycle counter routines in `libpi/include/cycle-count.h` so it
 might seem easy.  Unfortunately, our single step handler does so much 
-compared to running a single instruction that just recording them would
-be useless.
+compared to running a single instruction that just recording cycles in 
+the handler would be useless.
 
 Ideally, what we would want to do instead is:
-  1. As the first line of the fault handler, record the cycle count.
+  1. At the first line of the fault handler, record the cycle count.
   2. At the last line of the fault handler, record the cycle count.
-  3. Subtracting (1) from (2)  gives the difference.  (Note, of course,
-     by Heisenberg that there will still be perturbations, but if
-     small enough, it gets more deterministic and we can subtract it).
+  3. Subtracting (1) from (2) gives the cycles it cost to return
+     from the exception, run the next instruction, and then get
+     another fault.     Now, while it still includes the overhead
+     of taking and returning from an exception, these costs are large
+     but low variance (more below).
 
 How can we do this?  Various problems:
   1. How can we read the cycle counter when we get an exception?
@@ -209,44 +211,83 @@ How can we do this?  Various problems:
      need a stack to push it onto, but the stack needs `sp`.
 
      Fortunately, the arm1176 provides (at least) three coprocessor
-     registers for "process and thread id's."  However, since the
-     values are not interpreted by the hardware, they can be used to
-     store arbitrary values.  The screenshot of the manual below gives
-     the instructions.
+     scratch registers for "process and thread id's."  However, since
+     the values are not interpreted by the hardware, they can be used
+     to store arbitrary values.  The screenshot of page 3-129 (chapter
+     3 of the arm 1176.pdf manual) below gives the instructions.
 
-  3. Ok: so what about at the end?  We need the closet possible value
-     to when we jump back.  If we put this in sp, we won't have any
-     place to do the read in (1).   As you probably guessed we can put 
-     it in one of the other scratch registers.  (Or maybe do something
-     more clever?)
+     (Note: this kind of arm lore is a good reason to reach chapter 3 of
+     the arm1176: there are all sorts of weirdo little operations that
+     when you add cleverness can let you do neat stuff not possible on
+     a general purpose OS.)
 
-     Thus, given (2) and (3) we can compute the number of cycles in
-     the handler.
+<p align="center">
+  <img src="images/global-regs.png" width="600" />
+</p>
+
+
+  3. Ok: so what about at the end?  We want the cycle counter read
+     as close as possible to when we jump back.  If we put this reading
+     in sp, we won't have any place to do the read in (1).   As you
+     probably guessed we can put it in one of the other scratch registers.
+     (Or maybe do something more clever?)
+
+     Thus, the difference betwen (2) and (3) gives the number of cycles 
+     from
+       - A: when we return from a mismatch exception;
+       - B: ran the next instruction;
+       - C: and then took another mismatch exception and got back to 
+         the handler.
+
+     As mentioned above, while A and C are large compared to B, they are
+     performed internally within the hardware itself and (appear to!) have
+     low variance --- and low variance means they  just add (roughly)
+     a constant overhead, easily removed or ignored.  B on the other
+     hand can vary significantly, which is what we are interested in.
+
+     NOTE: if you find a case where A and C have significant variance,
+     it is interesting --- let us know! 
+
+#### What code to write
 
 What to do:
   1. Use the scratch registers to record the cycle counter at the 
      start and end of the handler.  Try to write the code so 
-     the reads are as close to the start and end as possible.
+     the reads are as close to the start and end as possible. 
+     The cleaner you can do this, the more stable the measurements
+     will be.
 
-  2. You'll have to subtract off a correction factor.  The cleaner
-     step 1 is, the more stable this factor will be.
-
-  3. Write some simple code that you know the answer to and validate
+  2. Write some simple code that you know the answer to and validate
      that you get useful answers.
 
-<p align="center">
-  <img src="images/global-regs.png" width="800" />
-</p>
+  3. After you're happy with (2), you can subtract off a correction
+     factor.  Or, alternatively, just keep things as is and use the
+     relative differences.
 
-Note: this is a good reason to reach chapter 3 of the arm1176:
-there are all sorts of weirdo little operations that when you
-add cleverness can let you do neat stuff not possible on a
-general purpose OS.
+Some common bugs:
+  1. If you notice a unusually large cycle value at a PC soon after
+     the user switch: this is because the scratch register used to
+     record the "last" cycle read has not been initialized.  Easy fix:
+     before the `cps` instruction in `pixie_switchto_user_asm` read the
+     cycle counter and set it.
+  2. If you add a line comment `@` or `//` to a macro used in the
+     `ss-pixie-asm.S` file, this will eat the entire remainder of
+     the macro body!  So either don't do this, don't use a macro, or
+     use `/* ... */` style comments.  If you're getting reset faults,
+     after changing the trampoline macro, this is what is going on :).
+  3. Note that for most approaches, the cycle counter differences
+     will be for the *previous* instruction not the current one.
+  4. Bugs in your profiler often won't lead to crashes, just
+     wrong results.  And wrong results are hard to spot if you don't know
+     what the right one is.   So write some very very simple tests where
+     you can see what is going on and validate that what you expect is
+     what you get.  For example, `4-nop-test.c` profiles a routine that
+     does 10 nops, no loads or stores with caching enabled.  We expect
+     each `nop` instruction to take about the same (for me 36 cycles).
+     Any big spike is a sign that somethig is off.
 
 ------------------------------------------------------------------
-### Part 3: Implement PMU counters
-
-***When you get here do a pull: filling stuff in***
+### Extension: Implement PMU counters `code-pmu`
 
 The arm1176 has a bunch of interesting performance counters
 we can use to see what is going on, such as cache misses, TLB misses,
@@ -265,9 +306,9 @@ In addition, they can be used to test your understanding of the hardware
 code based on this understanding and measure if the expected result is
 the actual.
 
-#### Implement `code/armv6-pmu.h`
+#### Implement `code-pmu/armv6-pmu.h`
 
-Fill in the `unimplemented` routines in `code/armv6-pmu.h`.  I'd suggest
+Fill in the `unimplemented` routines in `code-pmu/armv6-pmu.h`.  I'd suggest
 using the `cp_asm` macros in
 
         #include "asm-helpers.h"
@@ -300,12 +341,42 @@ write some code that shows off something they can measure (or run on your
 `libpi/include` directory and they should just work.
 
 ------------------------------------------------------------------
-### Part 4: Use PMU counters in your profiler
-
-***When you get here do a pull: filling stuff in***
+### Extension: Use PMU counters in your profiler
 
 For this, you'll take the assembly from part 3 and add the counters
-to the prefetch abort fault handler trampoline.
+to the prefetch abort fault handler trampoline.  
+
+------------------------------------------------------------------
+### Extension: Do a hierarchical profiler
+
+Seeing that a given instruction is run alot, is great, but if it's in
+a routine called by many other routines you can't easily figure out how
+to optimize.   A very useful tool is a hierarchical profiler that tracks
+who called what, and when they did, how much it cost.  You can do a full
+graph, or do 2 deep, 3 deep, etc.  Any of them will be extremely useful.
+
+A great use of this is to apply it to your fat32 file system and use it
+to speed it up.  Massive improvements are possible!
 
 [single-step]: https://github.com/dddrrreee/cs140e-25win/tree/main/labs/9-debug-hw
 [interrupts]: https://github.com/dddrrreee/cs140e-25win/tree/main/labs/4-interrupts
+
+------------------------------------------------------------------
+### Hard Extension: make the profiler able to profile itself
+
+This is an interesting challenge.  I believe its possible,
+but you need some clever recursive thinking. 
+
+Assume profiler-A is profiling profiler-B.  You'll have to do some
+virtualization tricks (similar to a full VMM) so that profiler-A can
+emulate / virtualize the privileged instructions and exceptions that
+profiler-B uses:  
+  - breakpoint instructions.
+  - reads/writes of cpsr, spsr.
+  - the cps instruction.
+  - others?
+  - You'll also have to use different memory (stack, etc)
+
+Very interesting if you can do more than two!
+
+This is a hard extension.  Interesting final project.

@@ -5,7 +5,8 @@
 # PROGS += tests/0-reg-test.c
 
 # when you want to start profiling
-PROGS := tests/1-prof-test.c
+# PROGS := tests/1-prof-test.c
+PROGS += tests/4-nop-test.c
 
 COMMON_SRC := ss-pixie.c
 COMMON_SRC += ss-pixie-asm.S

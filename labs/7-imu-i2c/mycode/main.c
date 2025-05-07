@@ -12,7 +12,7 @@ void notmain() {
     output("Calling mpu init\n");
     mpu_init();
     output("Finished mpu init\n");
-    mpu_accel_init(ACCEL_SCALE_2G);
+    mpu_accel_init(ACCEL_SCALE_8G);
     mpu_gyro_init(GYRO_SCALE_250);
 
     uint32_t whoami = mpu_whoami();
@@ -22,6 +22,8 @@ void notmain() {
 
     // Run self test
     mpu_gyro_self_test();
+
+    mpu_accel_self_test();
 
 
 

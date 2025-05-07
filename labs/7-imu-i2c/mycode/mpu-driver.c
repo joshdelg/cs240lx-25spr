@@ -151,6 +151,7 @@ void mpu_gryo_init_self_test(void) {
 }
 
 uint16_t mpu_gyro_self_test(void) {
+    trace("Gyro Self Test\n");
     // Read without self test
     gyro_rd_t init = mpu_read_gyro();
 
@@ -190,9 +191,67 @@ uint16_t mpu_gyro_self_test(void) {
     output("ft_y = %f\n", ft_y);
     output("ft_z = %f\n", ft_z);
 
-    float diff_x = 100 + ((str_x - ft_x) / (ft_x + str_x)) * 100;
-    float diff_y = 100 + ((str_y - ft_y) / (ft_y + str_y)) * 100;
-    float diff_z = 100 + ((str_z - ft_z) / (ft_z + str_z)) * 100;
+    float diff_x = 100 + (((str_x - ft_x) / (ft_x + str_x))) * 100;
+    float diff_y = 100 + (((str_y - ft_y) / (ft_y + str_y))) * 100;
+    float diff_z = 100 + (((str_z - ft_z) / (ft_z + str_z))) * 100;
+
+    output("diff_x = %f\n", diff_x);
+    output("diff_y = %f\n", diff_y);
+    output("diff_z = %f\n", diff_z);
+
+    return 1;
+}
+
+float compute_ft_accel(unsigned t) {
+    if(t == 0)
+        return 0;
+    return 4096. * .34 * powf(.92/.34, (t-1.)/(2*2*2*2*2-2.));
+}
+
+uint16_t mpu_accel_self_test(void) {
+    trace("Accel Self Test\n");
+    // Read without self test
+    accel_rd_t init = mpu_read_accel();
+
+    // Enable self test
+    uint8_t val = mpu_read(ACCEL_CONFIG);
+    val = bit_set(val, 7);
+    val = bit_set(val, 6);
+    val = bit_set(val, 5);
+
+    mpu_write(ACCEL_CONFIG, val);
+
+    delay_ms(250);
+
+    for(int i = 0; i < 20; i++) {
+        while(!mpu_intr_status()) {}
+
+        mpu_read_accel(); // Ignore
+    }
+
+    accel_rd_t vals = mpu_read_accel();
+
+    accel_rd_t ft = mpu_get_self_test_accel();
+
+    float str_x = (float)init.x - (float)vals.x;
+    float str_y = (float)init.y - (float)vals.y;
+    float str_z = (float)init.z - (float)vals.z;
+
+    output("str_x = %f\n", str_x);
+    output("str_y = %f\n", str_y);
+    output("str_z = %f\n", str_z);
+
+    float ft_z =  compute_ft_accel(ft.z);
+    float ft_x =  compute_ft_accel(ft.x);
+    float ft_y = -compute_ft_accel(ft.y);
+
+    output("ft_x = %f\n", ft_x);
+    output("ft_y = %f\n", ft_y);
+    output("ft_z = %f\n", ft_z);
+
+    float diff_x = 100 + (((str_x - ft_x) / (ft_x + str_x))) * 100;
+    float diff_y = 100 + (((str_y - ft_y) / (ft_y + str_y))) * 100;
+    float diff_z = 100 + (((str_z - ft_z) / (ft_z + str_z))) * 100;
 
     output("diff_x = %f\n", diff_x);
     output("diff_y = %f\n", diff_y);

@@ -17,5 +17,6 @@ void notmain(void) {
         nop_10();
     unsigned n = pixie_stop();
     pixie_dump(1);
+    // pixie_dump(20);
 }
 

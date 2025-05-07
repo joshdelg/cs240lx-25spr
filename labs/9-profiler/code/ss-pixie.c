@@ -215,6 +215,7 @@ unsigned pixie_stop(void) {
 }
 
 void pixie_dump(unsigned N) {
+    pixie_verbose(1);
 
     // Selection sort
     // trace("Start: %x End: %x\n", (uint32_t)__code_start__, (uint32_t)__code_end__);

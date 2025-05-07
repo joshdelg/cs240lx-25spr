@@ -83,5 +83,6 @@ gyro_rd_t   mpu_read_gyro(void);
 int16_t     mpu_convert_gyro(int16_t val);
 
 uint16_t mpu_gyro_self_test(void);
+uint16_t mpu_accel_self_test(void);
 
 #endif

@@ -1,8 +1,9 @@
 # very simple tests. start here.
 
-PROGS := 2-pmu-test.c
-PROGS := 1-pmu-test.c
-PROGS := 0-pmu-test.c
+# PROGS := 2-pmu-test.c
+# PROGS := 1-pmu-test.c
+# PROGS := 0-pmu-test.c
+PROGS := 3-prefetch-size.c
 
 COMMON_SRC := measure-fns.c
 COMMON_SRC += measure-asm.S

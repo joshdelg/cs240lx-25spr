@@ -1,0 +1,28 @@
+DEBUG:done with options: dev name=</dev/cu.usbserial-10>, pi-prog=<./0-pmu-test.bin>, trace=0
+opened tty port </dev/cu.usbserial-10>.
+DEBUG:my-install: tty-usb=</dev/cu.usbserial-10> program=<./0-pmu-test.bin>: about to boot
+TRACE:simple_boot: sending 5392 bytes, crc32=ee7c4474
+BOOT:waiting for a start
+DEBUG:PRINT_STRING:pi sent print: <JOSH DELGADILLO's UART: success: Received the program!>
+BOOT:bootloader: Done.
+redzone checking: init
+-------------no caching---------------------------------
+0:no cache: total cyc=166
+1:no cache: total cyc=90
+2:no cache: total cyc=90
+3:no cache: total cyc=90
+4:no cache: total cyc=90
+5:no cache: total cyc=87
+6:no cache: total cyc=90
+7:no cache: total cyc=91
+8:no cache: total cyc=90
+9:no cache: total cyc=87
+------------icache bt on-------------------------------
+0:cache: total cyc=64
+1:cache: total cyc=35
+2:cache: total cyc=35
+3:cache: total cyc=35
+4:cache: total cyc=35
+DONE!!!
+
+bootloader: pi exited.  cleaning up

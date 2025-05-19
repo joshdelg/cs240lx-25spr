@@ -50,7 +50,29 @@ void purify_free_raw(void *p, src_loc_t l) {
 }
 
 static int handler(void *data, fault_ctx_t *f) {
-    todo("implement this code!  if error: reboot");
+    hdr_t *blk = ck_ptr_is_alloced((uint32_t*) f->addr);
+
+    if (!ck_ptr_is_alloced((uint32_t*) f->addr)) {
+        output("Error: Accessing unallocated memory at address %x\n", f->addr);
+
+        // Find exact error
+        hdr_t *blk = ck_get_containing_blk((uint32_t*) f->addr);
+        output("Illegal access contained in block: %x with status %s\n", blk, blk->state == ALLOCED ? "ALLOCED" : "FREED");
+
+        int illegal_offset = ck_illegal_offset(blk, (uint32_t*) f->addr);
+
+        if (illegal_offset > 0) {
+            output("Attempted to access memory %d bytes after block end\n", illegal_offset);
+        } else if (illegal_offset < 0) {
+            output("Attempted to access memory %d bytes before block start\n", illegal_offset);
+        } else {
+            output("Attempted to access memory within block of status %s\n", blk->state == ALLOCED ? "ALLOCED" : "FREED");
+        }
+
+        // Reboot on error
+        clean_reboot();
+    }
+
     return MEMTRACE_OK;
 }
 

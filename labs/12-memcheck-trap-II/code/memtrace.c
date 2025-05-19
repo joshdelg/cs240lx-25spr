@@ -92,25 +92,32 @@ static void data_fault(regs_t *r) {
         uint32_t fault_addr = data_abort_addr();
         uint32_t pc = r->regs[15];
         
-        if(!quiet_p) trace("Domain Fault (Mem Trap) -- fault_addr=%x, pc=%x\n", fault_addr, pc);
+        // Turn trap off in case fault handler accesses trapped memory
+        trap_off();
+
+        // trace("Domain Fault (Mem Trap) -- fault_addr=%x, pc=%x\n", fault_addr, pc);
         
         fault_ctx_t fault_ctx = fault_ctx_mk(r, fault_addr, inst_nbytes(fault_addr), data_fault_from_ld());
         if (pre) pre(data, &fault_ctx);
 
-        watchpt_on(fault_addr);
-        trap_off();
+        // Turn watchpoint on last in case fault handler accesses trapped memory
+        watchpt_on(fault_addr);        
     } else if (watchpt_fault_p()) {
+        
         uint32_t fault_addr = watchpt_fault_addr();
         uint32_t pc = watchpt_fault_pc();
         
-        if(!quiet_p) trace("Watchpoint -- fault_addr=%x, fault_pc=%x\n", fault_addr, pc);
+        // Turn watchpoint off first in case fault handler accesses trapped memory
+        watchpt_off(fault_addr);
+
+        // trace("Watchpoint -- fault_addr=%x, fault_pc=%x\n", fault_addr, pc);
 
         fault_ctx_t fault_ctx = fault_ctx_mk(r, fault_addr, inst_nbytes(fault_addr), watchpt_load_fault_p());
         fault_ctx.pc = pc; // Automatically gets set to regs[15] which is wrong
 
         if (post) post(data, &fault_ctx);
 
-        watchpt_off(fault_addr);
+        // Turn trap on last in case fault handler accesses trapped memory
         trap_on();
     }
 

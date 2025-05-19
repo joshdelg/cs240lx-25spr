@@ -51,7 +51,8 @@ void notmain(void) {
     unsigned n_faults = 0;
 
     memtrace_init(&n_faults, trace_handler, 0, dom_trap);
-    memtrace_yap_off();
+    // memtrace_yap_off();
+    memtrace_yap_on();
 
     trace("about to turn on tracing\n");
     memtrace_trap_enable();

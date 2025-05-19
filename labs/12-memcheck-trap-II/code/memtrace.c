@@ -29,18 +29,26 @@ static int quiet_p = 0;
 void memtrace_yap_off(void) { quiet_p = 1; }
 void memtrace_yap_on(void)  { quiet_p = 0; }
 
-// pre-computed domain register values.
 static uint32_t trap_access = 0;
 static uint32_t no_trap_access = 0;
 
+static const uint32_t DOM_client = 0b01;
+static const uint32_t heap_dom = 2;
+
 static int trap_is_on_p(void) {
-    todo("return 1 if trapping on: use domain_access_ctrl_get");
+    return domain_access_ctrl_get() == trap_access;
 }
 static void trap_on(void) {
-    todo("turn trapping on: use domain_access_ctrl_set");
+    domain_access_ctrl_set(trap_access);
+
+    uint32_t v = domain_access_ctrl_get();
+    assert(v = trap_access);
 }
 static void trap_off(void) {
-    todo("turn trapping off: use domain_access_ctrl_set");
+    domain_access_ctrl_set(no_trap_access);
+
+    uint32_t v = domain_access_ctrl_get();
+    assert(v = no_trap_access);
 }
 
 // turn memtracing on: wrapper with extra error checking.
@@ -50,6 +58,8 @@ void memtrace_trap_enable(void) {
     // if not true, didn't init
     assert(trap_access && no_trap_access);
     assert(!trap_is_on_p());
+
+    // trace("Passed checks. Turning trapping on\n");
     trap_on();
 }
 
@@ -73,14 +83,42 @@ static void data_fault(regs_t *r) {
     if(mode_get(r->regs[16]) != SUPER_MODE)
         panic("got a fault not at SUPER level?\n");
 
+    // output("Data Fault\n");
+
     // after a domain fault: call <pre>.  
     // after a watchpoint fault: call <post>.
-    todo("handle the fault!");
+    uint32_t reason = data_abort_reason();
+    if (reason == DOMAIN_SECTION_FAULT) {
+        uint32_t fault_addr = data_abort_addr();
+        uint32_t pc = r->regs[15];
+        
+        if(!quiet_p) trace("Domain Fault (Mem Trap) -- fault_addr=%x, pc=%x\n", fault_addr, pc);
+        
+        fault_ctx_t fault_ctx = fault_ctx_mk(r, fault_addr, inst_nbytes(fault_addr), data_fault_from_ld());
+        if (pre) pre(data, &fault_ctx);
+
+        watchpt_on(fault_addr);
+        trap_off();
+    } else if (watchpt_fault_p()) {
+        uint32_t fault_addr = watchpt_fault_addr();
+        uint32_t pc = watchpt_fault_pc();
+        
+        if(!quiet_p) trace("Watchpoint -- fault_addr=%x, fault_pc=%x\n", fault_addr, pc);
+
+        fault_ctx_t fault_ctx = fault_ctx_mk(r, fault_addr, inst_nbytes(fault_addr), watchpt_load_fault_p());
+        fault_ctx.pc = pc; // Automatically gets set to regs[15] which is wrong
+
+        if (post) post(data, &fault_ctx);
+
+        watchpt_off(fault_addr);
+        trap_on();
+    }
 
     // drain printk to avoid the "can tx" race in UART.
     while(!uart_can_put8())
         ;
 
+    if(!quiet_p) output("Switching back to user mode\n");
     switchto(r);
 }
 
@@ -104,7 +142,13 @@ void memtrace_init(
     data = data_h;
     assert(trap_dom < 16);
 
-    todo("do any additional setup you need");
+    // Initialize domain register values
+    uint32_t dom_bits = DOM_client << (1*2) | DOM_client << (2*2);
+
+    // this only has the kernel domain: 
+    // this will trap any heap acces.
+    trap_access     = dom_bits;
+    no_trap_access  = trap_access |  DOM_client << (trap_dom*2);
 
     // XXX: what's the right way to handle SS exceptions at the same time?
     full_except_install(0);

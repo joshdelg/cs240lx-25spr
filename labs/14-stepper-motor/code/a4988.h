@@ -60,7 +60,18 @@ static inline void step(step_t *s, int dir) {
     assert(dir == forward || dir == backward);
     assert(s->step_delay);
 
-    unimplemented();
+    if(dir == forward) {
+        gpio_set_on(s->dir_pin);
+    } else {
+        gpio_set_off(s->dir_pin);
+    }
+
+    delay_us(s->dir_delay);
+
+    gpio_set_on(s->step_pin);
+    delay_us(s->step_delay);
+    gpio_set_off(s->step_pin);
+    delay_us(s->dir_delay);
 }
 
 static inline void step_forward(step_t *s) { step(s,forward); }

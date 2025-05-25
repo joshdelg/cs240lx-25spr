@@ -46,7 +46,7 @@ enum {
     onebit_1 = 1600,
     stop_0 = 0,
     stop_1 = 20000
- };
+};
 
 static inline tr_t tr_mk(void) {
     return (tr_t){};

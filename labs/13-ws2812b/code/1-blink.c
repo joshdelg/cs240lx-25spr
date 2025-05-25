@@ -25,6 +25,7 @@ void notmain(void) {
         output("setting on\n");
         pix_sendpixel(pix_pin, 0,0,0xff);
         pix_sendpixel(pix_pin, 0xff, 0,0);
+        // pix_sendpixel(pix_pin, 0,0xff,0);
         pix_flush(pix_pin);
         delay_ms(1000);
 

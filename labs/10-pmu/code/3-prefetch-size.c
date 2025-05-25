@@ -28,6 +28,24 @@ void measure_nops(const char *msg, int n) {
     asm volatile("nop");  // 7
     asm volatile("nop");  // 8
     asm volatile("nop");  // 9
+    asm volatile("nop");  // 10
+    asm volatile("nop");  // 11
+    asm volatile("nop");  // 12
+    asm volatile("nop");  // 13
+    asm volatile("nop");  // 14
+    asm volatile("nop");  // 15
+    asm volatile("nop");  // 17
+    asm volatile("nop");  // 18
+
+    asm volatile("nop");  // 19
+    asm volatile("nop");  // 20
+    asm volatile("nop");  // 21
+    asm volatile("nop");  // 22
+    asm volatile("nop");  // 23
+    asm volatile("nop");  // 24
+    asm volatile("nop");  // 25
+    asm volatile("nop");  // 26
+    // asm volatile("nop");  // 27
 
     cyc_e       = pmu_cycle_get();      // always on cycle counter
     inst0_e     = pmu_event_get(0);     // instruction count
@@ -53,7 +71,24 @@ void notmain(void) {
     // 6 Nops - 55
     // 7 Nops = 57
     // 8 Nops = 59
+    // -------
     // 9 Nops = 95
+    // 10 Nops = 97
+    // 11 Nops = 99
+    // 12 Nops = 101
+    // 13 Nops = 103
+    // 15 Nops = 107
+    // 17 Nops = 109
+    // --------
+    // 18 Nops = 143
+    // 25 Nops = 157
+    // --------
+    // 26 Nops = 196
+
+    // Becuase the .align dircetives and cycle tracking instructions
+    // cause some overhead, we can't use our initial cycle measurements to
+    // predict. But, observing the trend, it seems every 8 instructions the
+    // cycle count jumps, suggested a prefetch buffer of 8 instructions.
 
     
 

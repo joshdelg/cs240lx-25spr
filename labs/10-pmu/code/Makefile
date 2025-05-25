@@ -3,10 +3,17 @@
 # PROGS := 2-pmu-test.c
 # PROGS := 1-pmu-test.c
 # PROGS := 0-pmu-test.c
-PROGS := 3-prefetch-size.c
+# PROGS := 3-prefetch-size.c
+# PROGS := 4-invalidate-icache.c
+# PROGS := 5-branch-pred.c
+# PROGS += 6-wb-drain.c
+PROGS += 7-icache-test.c
 
 COMMON_SRC := measure-fns.c
 COMMON_SRC += measure-asm.S
+
+COMMON_SRC += less_nops.S
+COMMON_SRC += many_nops.S
 
 # mess with the optimization level and see what happens!
 OPT_LEVEL = -O2 -fno-optimize-sibling-calls 

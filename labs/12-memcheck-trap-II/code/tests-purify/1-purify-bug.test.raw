@@ -1,0 +1,4 @@
+opened tty port </dev/cu.usbserial-10>.
+pi-install: tty-usb=</dev/cu.usbserial-10> program=<./tests-purify/1-purify-bug.bin> about to boot
+TRACE:simple_boot: sending 29144 bytes, crc32=9b84a1f8
+waiting for a start

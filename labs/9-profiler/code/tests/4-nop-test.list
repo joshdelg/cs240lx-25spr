@@ -96,7 +96,7 @@ Disassembly of section .text:
     8120:	eb000121 	bl	85ac <pixie_start>
     8124:	ebffffc5 	bl	8040 <nop_10>
     8128:	eb000196 	bl	8788 <pixie_stop>
-    812c:	e3a00014 	mov	r0, #20, 0
+    812c:	e3a00001 	mov	r0, #1, 0
     8130:	eb0001bb 	bl	8824 <pixie_dump>
     8134:	e8bd8010 	pop	{r4, pc}
 	...

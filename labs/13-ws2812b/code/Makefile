@@ -1,14 +1,15 @@
+PROGS = 3-ir.c  
 # do this last.
-PROGS = 2-neopix.c 
+# PROGS = 2-neopix.c 
 # do this second:
-PROGS = 1-blink.c  
+# PROGS = 1-blink.c  
 # do this first.
-PROGS = 0-timing-check.c 
+# PROGS = 0-timing-check.c 
 
 # if you want to use our code for <2-neopix.c>, 
 # swap these
-# STAFF_OBJS := staff-neopixel.o
-COMMON_SRC := neopixel.c
+STAFF_OBJS := staff-neopixel.o
+# COMMON_SRC := neopixel.c
 
 OPT_LEVEL = -O2
 

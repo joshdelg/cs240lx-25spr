@@ -8,6 +8,11 @@
         "rpi.h": "c",
         "mpu-driver.h": "c",
         "rpi-math.h": "c",
-        "kr-malloc.h": "c"
+        "kr-malloc.h": "c",
+        "rpi-rand.h": "c",
+        "bit-support.h": "c",
+        "cycle-count.h": "c",
+        "neopixel.h": "c",
+        "functional": "cpp"
     }
 }

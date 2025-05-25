@@ -42,6 +42,13 @@
 #define R_ARM_ABS32 2
 #define SHN_UNDEF 0
 
+// @joshdelg File Types
+#define ET_EXEC 2
+#define ET_DYN 3
+
+// @joshdelg ELF Class
+#define ELFCLASS32 1
+
 /*
     ELF Headers
 */

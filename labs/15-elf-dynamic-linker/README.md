@@ -6,6 +6,11 @@ Today, we are going to build a program that parses ELF files, loads it into the 
 
 **Check-off: Finish parts 0, 1, 2, and 3**
 
+## Live Notes
+
+- If you are getting multiple definitions error on `1-my-elf-loader`, `git pull` and try again (`fat32_ls` is now gone. Sorry 😥)
+- Make sure you add the base address when locating dynamic sections!
+
 ## Background 1: How we ran programs on Raspberry Pi so far
 
 Throughout CS140E and CS240LX, we've been statically linking everything, and passed the raw instructions to our R/pi through our bootloader. If you've been paying attention to the Makefiles we use in the labs, you could've seen that the process is roughly:
@@ -235,7 +240,7 @@ DONE!!!
 ## Part 2: Runtime Symbol Resolution for Shared Libraries
 
 **Check-off:**
-- Fill in `get_dynamic_sections(...)` and `resolve_symbol(...)` in `my-dynamic-linker.c`
+- Fill in `get_dynamic_sections(...)` and `resolve_symbol(...)` in `my-dynamic-linker.c` (make sure to add the base address)
 - Run `make` and show that it can correctly resolve and jump to `printk`
 
 **TL;DR: Read through `notmain.c` to understand the program flow. Fill in the `todo`s in `my-dynamic-linker.c`**

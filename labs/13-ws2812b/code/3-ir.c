@@ -223,10 +223,10 @@ uint32_t capture_key_press() {
 }
 
 const uint32_t light_colors[4][3] = {
-    {0, 255, 0}, // Green
-    {255, 255, 0}, // Yellow
-    {0, 0, 255}, // Blue
-    {255, 0, 0} // Red
+    {0, 255, 0}, // Green - UP
+    {255, 255, 0}, // Yellow - RIGHT
+    {0, 0, 255}, // Blue - DOWN
+    {255, 0, 0} // Red - LEFT
 };
 
 const uint32_t color_key[4] = {

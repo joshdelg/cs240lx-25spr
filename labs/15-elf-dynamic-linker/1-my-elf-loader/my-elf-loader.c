@@ -76,6 +76,8 @@ void jump_to_elf_entry(elf32_header *e_header) {
     // Branch to the entry point. Woohoo!
     // todo("Branch to the entry point");
     printk("[MY-ELF] Branching to the entry point\n");
-    BRANCHTO(entry_point);
+    output("entry_point: %x -- %x\n", entry_point, *(uint32_t *)entry_point);
+    // BRANCHTO(entry_point);
+    asm volatile("bx %0\n" : : "r" (entry_point));
     panic("[MY-ELF] Shouldn't reach here!\n");
 }

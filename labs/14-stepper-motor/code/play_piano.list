@@ -135,50 +135,50 @@ Disassembly of section .text:
     81d4:	e3a02014 	mov	r2, #20, 0
     81d8:	e58d200c 	str	r2, [sp, #12]
     81dc:	e58d3010 	str	r3, [sp, #16]
-    81e0:	e59f40a0 	ldr	r4, [pc, #160]	; 8288 <notmain+0xec>
-    81e4:	e1a01004 	mov	r1, r4
-    81e8:	ed9f0a1e 	vldr	s0, [pc, #120]	; 8268 <notmain+0xcc>
-    81ec:	e28d0004 	add	r0, sp, #4, 0
-    81f0:	ebffff96 	bl	8050 <play_note>
-    81f4:	e1a01004 	mov	r1, r4
-    81f8:	ed9f0a1b 	vldr	s0, [pc, #108]	; 826c <notmain+0xd0>
+    81e0:	ea000007 	b	8204 <notmain+0x68>
+    81e4:	e59f0088 	ldr	r0, [pc, #136]	; 8274 <notmain+0xd8>
+    81e8:	ea000000 	b	81f0 <notmain+0x54>
+    81ec:	e59f0084 	ldr	r0, [pc, #132]	; 8278 <notmain+0xdc>
+    81f0:	e59f1084 	ldr	r1, [pc, #132]	; 827c <notmain+0xe0>
+    81f4:	ee070a90 	vmov	s15, r0
+    81f8:	eeb80ae7 	vcvt.f32.s32	s0, s15
     81fc:	e28d0004 	add	r0, sp, #4, 0
     8200:	ebffff92 	bl	8050 <play_note>
-    8204:	e1a01004 	mov	r1, r4
-    8208:	ed9f0a18 	vldr	s0, [pc, #96]	; 8270 <notmain+0xd4>
-    820c:	e28d0004 	add	r0, sp, #4, 0
-    8210:	ebffff8e 	bl	8050 <play_note>
-    8214:	e1a01004 	mov	r1, r4
-    8218:	ed9f0a15 	vldr	s0, [pc, #84]	; 8274 <notmain+0xd8>
-    821c:	e28d0004 	add	r0, sp, #4, 0
-    8220:	ebffff8a 	bl	8050 <play_note>
-    8224:	e1a01004 	mov	r1, r4
-    8228:	ed9f0a12 	vldr	s0, [pc, #72]	; 8278 <notmain+0xdc>
-    822c:	e28d0004 	add	r0, sp, #4, 0
-    8230:	ebffff86 	bl	8050 <play_note>
-    8234:	e1a01004 	mov	r1, r4
-    8238:	ed9f0a0f 	vldr	s0, [pc, #60]	; 827c <notmain+0xe0>
-    823c:	e28d0004 	add	r0, sp, #4, 0
-    8240:	ebffff82 	bl	8050 <play_note>
-    8244:	e1a01004 	mov	r1, r4
-    8248:	ed9f0a0c 	vldr	s0, [pc, #48]	; 8280 <notmain+0xe4>
-    824c:	e28d0004 	add	r0, sp, #4, 0
-    8250:	ebffff7e 	bl	8050 <play_note>
-    8254:	e1a01004 	mov	r1, r4
-    8258:	ed9f0a09 	vldr	s0, [pc, #36]	; 8284 <notmain+0xe8>
-    825c:	e28d0004 	add	r0, sp, #4, 0
-    8260:	ebffff7a 	bl	8050 <play_note>
-    8264:	eaffffdd 	b	81e0 <notmain+0x44>
-    8268:	4382d0a4 	.word	0x4382d0a4
-    826c:	4392d47b 	.word	0x4392d47b
-    8270:	43a4d0a4 	.word	0x43a4d0a4
-    8274:	43ae9d71 	.word	0x43ae9d71
-    8278:	43c40000 	.word	0x43c40000
-    827c:	43dc0000 	.word	0x43dc0000
-    8280:	43f6f0a4 	.word	0x43f6f0a4
-    8284:	4402d000 	.word	0x4402d000
-    8288:	0007a120 	.word	0x0007a120
-    828c:	00000000 	.word	0x00000000
+    8204:	eb00029d 	bl	8c80 <uart_get8>
+    8208:	e3500031 	cmp	r0, #49, 0	; 0x31
+    820c:	0afffff4 	beq	81e4 <notmain+0x48>
+    8210:	e3500032 	cmp	r0, #50, 0	; 0x32
+    8214:	0afffff4 	beq	81ec <notmain+0x50>
+    8218:	e3500033 	cmp	r0, #51, 0	; 0x33
+    821c:	0a00000a 	beq	824c <notmain+0xb0>
+    8220:	e3500034 	cmp	r0, #52, 0	; 0x34
+    8224:	0a00000a 	beq	8254 <notmain+0xb8>
+    8228:	e3500035 	cmp	r0, #53, 0	; 0x35
+    822c:	0a00000a 	beq	825c <notmain+0xc0>
+    8230:	e3500036 	cmp	r0, #54, 0	; 0x36
+    8234:	0a00000a 	beq	8264 <notmain+0xc8>
+    8238:	e3500037 	cmp	r0, #55, 0	; 0x37
+    823c:	0a00000a 	beq	826c <notmain+0xd0>
+    8240:	e3500038 	cmp	r0, #56, 0	; 0x38
+    8244:	059f0034 	ldreq	r0, [pc, #52]	; 8280 <notmain+0xe4>
+    8248:	eaffffe8 	b	81f0 <notmain+0x54>
+    824c:	e59f0030 	ldr	r0, [pc, #48]	; 8284 <notmain+0xe8>
+    8250:	eaffffe6 	b	81f0 <notmain+0x54>
+    8254:	e59f002c 	ldr	r0, [pc, #44]	; 8288 <notmain+0xec>
+    8258:	eaffffe4 	b	81f0 <notmain+0x54>
+    825c:	e3a00f62 	mov	r0, #392	; 0x188
+    8260:	eaffffe2 	b	81f0 <notmain+0x54>
+    8264:	e3a00f6e 	mov	r0, #440	; 0x1b8
+    8268:	eaffffe0 	b	81f0 <notmain+0x54>
+    826c:	e59f0018 	ldr	r0, [pc, #24]	; 828c <notmain+0xf0>
+    8270:	eaffffde 	b	81f0 <notmain+0x54>
+    8274:	00000105 	.word	0x00000105
+    8278:	00000125 	.word	0x00000125
+    827c:	0007a120 	.word	0x0007a120
+    8280:	0000020b 	.word	0x0000020b
+    8284:	00000149 	.word	0x00000149
+    8288:	0000015d 	.word	0x0000015d
+    828c:	000001ed 	.word	0x000001ed
 
 00008290 <trunc>:
     8290:	eefd7bc0 	vcvt.s32.f64	s15, d0

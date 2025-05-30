@@ -12,23 +12,43 @@ void get_dynamic_sections(my_elf32 *e) {
     char *elf32_base = (char *)e->e_header;
     elf32_header *e_header = (elf32_header *)elf32_base;
     elf32_sheader *e_sheaders = (elf32_sheader *)(elf32_base + e_header->e_shoff);
-    e->n_dynamics = 0;
-    e->e_hash = NULL;
-    e->e_dynsym = NULL;
-    e->e_dynstr = NULL;
-    e->e_pltgot = NULL;
-    e->e_reldyn = NULL;
-
+    
     // Refer to 1-10, 2-11, 2-12, and 2-13
     // Use the `d_tag` field to identify these sections in the dynamic section.
     // The section addresses are stored in the `d_un.d_ptr` field.
-    todo("Locate .hash, .dynsym, .dynstr, .pltgot, and .rel.dyn sections through the .dynamic section");
-    // for (int i = 0; i < ???; i++) {
-    //     // Dynamic section found. Use this section to read .hash, .dynsym, .dynstr sections
-    //     if (e_sheaders[i].sh_type == SHT_DYNAMIC) {
-    //         ???
-    //     }
-    // }
+    // todo("Locate .hash, .dynsym, .dynstr, .pltgot, and .rel.dyn sections through the .dynamic section");
+
+    for(int i = 0; i < e_header->e_shnum; i++) {
+        if(e_sheaders[i].sh_type == SHT_DYNAMIC) {
+            // Found dynamic section
+            elf32_dynamic *e_dynamics = (elf32_dynamic*) (elf32_base + e_sheaders[i].sh_offset);
+            e->e_dynamics = e_dynamics;
+            e->n_dynamics = e_sheaders[i].sh_size / sizeof(elf32_dynamic);
+
+
+            for(int j = 0; j < e->n_dynamics; j++) {
+                elf32_dynamic *e_dynamic = &e_dynamics[j];
+
+                switch (e_dynamic->d_tag) {
+                    case DT_HASH:
+                        e->e_hash = (uint32_t *)(elf32_base + e_dynamic->d_un.d_ptr);
+                        break;
+                    case DT_SYMTAB:
+                        e->e_dynsym = (elf32_sym *)(elf32_base + e_dynamic->d_un.d_ptr);
+                        break;
+                    case DT_STRTAB:
+                        e->e_dynstr = (char *)(elf32_base + e_dynamic->d_un.d_ptr);
+                        break;
+                    case DT_PLTGOT:
+                        e->e_pltgot = (uint32_t *)(elf32_base + e_dynamic->d_un.d_ptr);
+                        break;
+                    case DT_JMPREL:
+                        e->e_reldyn = (elf32_rel *)(elf32_base + e_dynamic->d_un.d_ptr);
+                        break;
+                }
+            }
+        }
+    }
 
     if (e->e_hash == NULL || e->e_dynsym == NULL || e->e_dynstr == NULL || e->e_pltgot == NULL || e->e_reldyn == NULL)
         panic("[MY-DL] Couldn't find .hash, .dynsym, .dynstr, .pltgot, or .rel.dyn section\n");
@@ -94,8 +114,41 @@ uint32_t resolve_symbol(my_elf32 *e, char *symbol_name) {
     // Refer to 1-17 for the symbol entry format and 1-16 for the string table format
     // Go through every entry in .dynsym section, retrieve its index in the .dynstr section, 
     // get the symbol name, compare it with symbol_name, and use st_value to retrieve its address
-    todo("Find the symbol using the .dynsym and .dynstr sections and fill in the symbol_addr");
-    // No more code hint!
+    // todo("Find the symbol using the .dynsym and .dynstr sections and fill in the symbol_addr");
+    
+    // Find number of dynsym and dynstr entries by
+    // matching address to section header table entries
+    elf32_header *e_header = (elf32_header *)elf32_base;
+    elf32_sheader *e_sheaders = (elf32_sheader *)(elf32_base + e_header->e_shoff);
+    
+    uint32_t n_dynsym = 0;
+    for(int i = 0; i < e_header->e_shnum; i++) {
+        if((uint32_t) (e_sheaders[i].sh_offset + elf32_base) == (uint32_t) e->e_dynsym) {
+            n_dynsym = e_sheaders[i].sh_size / sizeof(elf32_sym);
+        }
+    }
+
+    // uint32_t n_dynstr = 0;
+    // for(int i = 0; i < e_header->e_shnum; i++) {
+    //     if(e_sheaders[i].sh_offset == (uint32_t) e->e_dynstr) {
+    //         n_dynstr = e_sheaders[i].sh_size / sizeof(char);
+    //     }
+    // }
+
+    // Iterate over each .dynsym entry
+    // output("Looking for symbol: %s\n", symbol_name);
+    // output("String table address: %x\n", e->e_dynstr);
+    // output("Symbol table address: %x\n", e->e_dynsym);
+    elf32_sym *e_syms = e->e_dynsym;
+    for(int i = 0; i < n_dynsym; i++) {
+        // output("Symbol table entry %d: gives index %d into string table\n", i, e->e_dynstr + e_syms[i].st_name);
+        char *sym_name = e->e_dynstr + e_syms[i].st_name;
+        // output("Considering symbol: %s (index %d)\n", sym_name, i);
+        if(strcmp(sym_name, symbol_name) == 0) {
+            symbol_addr = (uint32_t) (elf32_base + e_syms[i].st_value);
+            break;
+        }
+    }
 
     if (symbol_addr == 0)
         panic("[MY-DL] Couldn't find symbol: %s\n", symbol_name);

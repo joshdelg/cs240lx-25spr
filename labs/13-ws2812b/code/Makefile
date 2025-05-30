@@ -8,8 +8,8 @@ PROGS = 3-ir.c
 
 # if you want to use our code for <2-neopix.c>, 
 # swap these
-STAFF_OBJS := staff-neopixel.o
-# COMMON_SRC := neopixel.c
+# STAFF_OBJS := staff-neopixel.o
+COMMON_SRC := neopixel.c
 
 OPT_LEVEL = -O2
 

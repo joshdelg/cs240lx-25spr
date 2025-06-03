@@ -6,12 +6,12 @@ PROGS := 1-test-add.c
 
 
 #SWAP THESE
-#COMMON_SRC += parallel-add.c
-STAFF_OBJS += staff-parallel-add.o
+COMMON_SRC += parallel-add.c
+# STAFF_OBJS += staff-parallel-add.o
 
 #AND THESE
-#COMMON_SRC += addshader.c
-STAFF_OBJS += staffaddshader.o
+COMMON_SRC += addshader.c
+# STAFF_OBJS += staffaddshader.o
 
 #ALSO SWAP THE INCLUDES IN PARALLEL-ADD.H
 

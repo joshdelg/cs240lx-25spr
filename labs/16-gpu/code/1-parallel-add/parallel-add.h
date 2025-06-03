@@ -1,6 +1,6 @@
 // TODO: SWAP THESE
-#include "staffaddshader.h"
-// #include "addshader.h"
+// #include "staffaddshader.h"
+#include "addshader.h"
 
 #include "rpi.h"
 #include <stdint.h>
@@ -14,7 +14,7 @@
 // TODO: AFTER YOU DECIDE WHAT YOUR UNIFORMS SHOULD BE, SET THIS CONSTANT
 // (Ours is 4, yours doesn't have to be)
 // ALSO MAKE SURE YOU SWAP SHADER HEADER FILES (ABOVE)
-#define NUM_UNIFS 4
+#define NUM_UNIFS 5
 
 struct addGPU
 {

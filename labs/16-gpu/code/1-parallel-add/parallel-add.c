@@ -6,8 +6,8 @@
 
 // TODO: SWAP THESE
 
-// #include "addshader.h"
-#include "staffaddshader.h"
+#include "addshader.h"
+// #include "staffaddshader.h"
 
 void add_gpu_prepare(
 	volatile struct addGPU **gpu)
@@ -68,6 +68,9 @@ void vec_add_release(volatile struct addGPU *gpu)
 }
 
 // TODO: SET UP THE UNIFORMS FOR YOUR KERNEL
+
+// Need: N / 16 number of "rows", each row is 16 wide with each element being 4 bytes
+
 void vec_add_init(volatile struct addGPU **gpu, int n)
 {
 	add_gpu_prepare(gpu);
@@ -78,8 +81,8 @@ void vec_add_init(volatile struct addGPU **gpu, int n)
 	ptr->unif[0][0] = GPU_BASE + (uint32_t)&ptr->A;
 	ptr->unif[0][1] = GPU_BASE + (uint32_t)&ptr->B;
 	ptr->unif[0][2] = GPU_BASE + (uint32_t)&ptr->C;
-
-	todo("ADD ANY OTHER UNIFORMS YOU NEED FOR THE PARALLEL-ADD KERNEL (AND CHANGE NUM_UNIFS CONSTANT)");
+	ptr->unif[0][3] = n / 16;
+	// todo("ADD ANY OTHER UNIFORMS YOU NEED FOR THE PARALLEL-ADD KERNEL (AND CHANGE NUM_UNIFS CONSTANT)");
 
 	ptr->unif_ptr[0] = GPU_BASE + (uint32_t)&ptr->unif;
 }

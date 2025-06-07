@@ -1,4 +1,4 @@
-# Introduction
+# Raspberry pi pico 2 (Lab by Max Cura)
 
 In this lab, we'll be getting started with the Raspberry Pi Pico 2. It's a dual-mode processor, which basically means that it has both ARM and RISC-V CPUs that we can decide to use. For this lab, we'll be using the RISC-V one, which is called the Hazard3.
 
@@ -76,6 +76,9 @@ We'll only need to do this once: once the bootloader has been flashed, we can us
 
 We need two USB connections here; the USB port on the Pico doesn't speak UART like the one on the parthiv-board, so we need to find something to take the place of the parthiv-board. In this case, that's a USB-UART converter (the small red or blue boards). These will allow us to use the UART bootloader we just flashed onto the Pico.
 
+Pinout:
+![Pico 2 pinout](https://www.raspberrypi.com/documentation/microcontrollers/images/pico-2-r4-pinout.svg)
+
 Attach your UART FTDI converter to the PICO like so:
 ```
 PICO TX (GP0) <-> FTDI RX
@@ -132,6 +135,37 @@ We want to see that your UART code can print, nothing more.
 # Part 3: BootROM
 
 For a final step, we want to (be able to) remove our dependence on the `okboot` bootloader. To do this, we'll build a very minimal bootable flash image in `part3.c`.
+
+Basically, we'll want to create an `IMAGE_DEF` block in what's called a "block loop" in the first 4K of the flash image.
+We can do this by creating a static array in a C file, and putting it into a special `.text.boot_header` section that we force to be early in the image.
+
+For information on block loops, check 5.5 and 5.9 in `rp2350-datasheet.pdf`. Basically, they're magic-number-delimited structures that are spread across flash; when the Pico boots, it'll search the first 4K for an block with the special `IMAGE_DEF` type, which will allow us to specify how we want the image we've written to flash to be treated.
+
+IMPORTANT: Look at Erratum RP2350-E10 on page 1350 in `rp2350-datasheet.pdf`.
+
+`make part3` will create a `part3.uf2` file that you can then flash to the Pico.
+Note that before running `part3`, you will need to set the `ENGRAVE_UF2` variable in the makefile, as well as the `FLASH_MOUNT` variable, correctly for your system.
+
+Since we're not using pi-install, we need a different way to read the UART output; we can use the venerable `socat`:
+```
+# macOS
+socat - /dev/<the tty device>,ospeed=115200,ispeed=115200,rawer
+# Linux
+socat - /dev/<the tty device>,b115200,rawer
+```
+Since the UART-to-USB converter is now on a separate power source, even if we power cycle the Pico, the UART connection won't be broken, so you can just keep a `socat` session open (though note that if`socat` is open, the `okboot` UART bootloader won't work).
+
+### Side note: Installing socat
+
+```
+# macOS
+brew install socat
+# Debian
+sudo apt install socat
+```
+
+### Checkoff:
+
 
 # Major differences with the BCM
 

@@ -1,7 +1,12 @@
 .SUFFIXES:
 .DEFAULT_GOAL := run
 
-INSTALL := ../bin/pi-install
+FLASH_MOUNT := /Volumes/RP2350
+# FLASH_MOUNT := /mnt/pico
+
+INSTALL := pi-install
+ENGRAVE_UF2 := ../bin/engrave-uf2.macos
+
 COMMON_SRC := gpio.c
 COMMON_SRC += printk.c
 
@@ -35,16 +40,24 @@ part1.elf: part1.o staff-uart.o $(COMMON_OBJS) | $(MEMMAP)
 part2.elf: part2.o staff-uart.o $(COMMON_OBJS) | $(MEMMAP)
 	$(LD) $(LDFLAGS) $^ -o $@
 
+part3.elf: part2.o uart.o $(COMMON_OBJS) | $(MEMMAP)
+	$(LD) $(LDFLAGS) $^ -o $@
+
+part3.uf2: part3.elf
+	$(ENGRAVE_UF2) $< -o $@
+
 %.bin: %.elf
 	$(OBJCOPY) $< -O binary $@
 
 # Indicate to make that `clean` is not an actual file on the FS
 .PHONY: clean
 clean:
-	rm -f {part1,part2}.{o,elf,bin} lib.o $(COMMON_OBJS)
+	rm -f {part1,part2,part3}.{o,elf,bin} lib.o $(COMMON_OBJS)
 
-.PHONY: part1 part2
+.PHONY: part1 part2 part3
 part1: part1.bin
 	$(INSTALL) $<
 part2: part2.bin
 	$(INSTALL) $<
+part3: part3.uf2
+	cp $< $(FLASH_MOUNT)

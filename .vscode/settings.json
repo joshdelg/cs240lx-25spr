@@ -13,6 +13,9 @@
         "bit-support.h": "c",
         "cycle-count.h": "c",
         "neopixel.h": "c",
-        "functional": "cpp"
+        "functional": "cpp",
+        "test-interface.h": "c",
+        "ckalloc.h": "c",
+        "rpi-constants.h": "c"
     }
 }

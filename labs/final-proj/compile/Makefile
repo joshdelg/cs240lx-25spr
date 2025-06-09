@@ -1,4 +1,4 @@
-PROGS += 0-hello.c
+PROGS += hello.c
 
 # COMMON_SRC = pi-sbrk.c
 
@@ -6,16 +6,17 @@ PROGS += 0-hello.c
 # COMMON_SRC += kr-malloc.c 
 # STAFF_OBJS = staff-kr-malloc.o
 
+MEMMAP=./memmap
 
-# RUN=1
+
+RUN=0
 
 EXCLUDE ?= grep -v simple_boot
 include ../../../libpi/mk/Makefile.robust-v2
 
-
-# # simple makefile that shows the tools and options used to compile 
-# # everything in this directory to make a 'hello world' program.
-# #  - shows how to define make variables and simple dependencies.
+# simple makefile that shows the tools and options used to compile 
+# everything in this directory to make a 'hello world' program.
+#  - shows how to define make variables and simple dependencies.
 
 # # the different tools we use.
 # ARM = arm-none-eabi
@@ -33,7 +34,7 @@ include ../../../libpi/mk/Makefile.robust-v2
 # CFLAGS = -O -Wall -Wno-unused-variable -Werror \
 #           -nostdlib -nostartfiles -ffreestanding  -march=armv6 -std=gnu99  
 
-# all: hello.bin run
+# all: hello.bin
 
 # # simplest possible method: always recompile the whole thing.
 # #    1. generate a hello.elf with debugging symbols

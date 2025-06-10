@@ -16,6 +16,12 @@
         "functional": "cpp",
         "test-interface.h": "c",
         "ckalloc.h": "c",
-        "rpi-constants.h": "c"
+        "rpi-constants.h": "c",
+        "breakpoint.h": "c",
+        "cstdlib": "c",
+        "asm-helpers.h": "c",
+        "switchto.h": "c",
+        "commands.h": "c",
+        "cpsr-util.h": "c"
     }
 }

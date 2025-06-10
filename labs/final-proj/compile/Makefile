@@ -1,4 +1,5 @@
 PROGS += hello.c
+PROGS += blink-red.c
 
 # COMMON_SRC = pi-sbrk.c
 

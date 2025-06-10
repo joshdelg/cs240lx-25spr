@@ -1,0 +1,397 @@
+
+staff-breakpoint.o:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <cp14_enable>:
+cp14_enable():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:24
+   0:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+   4:	e24dd00c 	sub	sp, sp, #12, 0
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:25
+   8:	e59f0118 	ldr	r0, [pc, #280]	; 128 <cp14_enable+0x128>
+   c:	ebfffffe 	bl	0 <printk>
+cp14_status_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:16
+  10:	ee103e11 	mrc	14, 0, r3, cr0, cr1, {0}
+cp14_enable():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:31
+  14:	e3130901 	tst	r3, #16384	; 0x4000
+  18:	1a000012 	bne	68 <cp14_enable+0x68>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:32
+  1c:	e3130902 	tst	r3, #32768	; 0x8000
+  20:	1a000018 	bne	88 <cp14_enable+0x88>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:33
+  24:	e3130902 	tst	r3, #32768	; 0x8000
+  28:	1a00001e 	bne	a8 <cp14_enable+0xa8>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:34
+  2c:	e3130901 	tst	r3, #16384	; 0x4000
+  30:	1a000024 	bne	c8 <cp14_enable+0xc8>
+bit_set():
+/home/engler/class/cs240lx-25spr//libpi/libc/bit-support.h:16
+  34:	e3833902 	orr	r3, r3, #32768	; 0x8000
+cp14_status_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:16
+  38:	ee003e11 	mcr	14, 0, r3, cr0, cr1, {0}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+  3c:	e3a03000 	mov	r3, #0, 0
+  40:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_status_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:16
+  44:	ee103e11 	mrc	14, 0, r3, cr0, cr1, {0}
+cp14_enable():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:38
+  48:	e3130902 	tst	r3, #32768	; 0x8000
+  4c:	0a000025 	beq	e8 <cp14_enable+0xe8>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:39
+  50:	e3130901 	tst	r3, #16384	; 0x4000
+  54:	1a00002b 	bne	108 <cp14_enable+0x108>
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+  58:	e3a03000 	mov	r3, #0, 0
+  5c:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_enable():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:43
+  60:	e28dd00c 	add	sp, sp, #12, 0
+  64:	e49df004 	pop	{pc}		; (ldr pc, [sp], #4)
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:31 (discriminator 1)
+  68:	e59f30bc 	ldr	r3, [pc, #188]	; 12c <cp14_enable+0x12c>
+  6c:	e58d3000 	str	r3, [sp]
+  70:	e3a0301f 	mov	r3, #31, 0
+  74:	e59f20b4 	ldr	r2, [pc, #180]	; 130 <cp14_enable+0x130>
+  78:	e59f10b4 	ldr	r1, [pc, #180]	; 134 <cp14_enable+0x134>
+  7c:	e59f00b4 	ldr	r0, [pc, #180]	; 138 <cp14_enable+0x138>
+  80:	ebfffffe 	bl	0 <printk>
+  84:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:32 (discriminator 1)
+  88:	e59f30ac 	ldr	r3, [pc, #172]	; 13c <cp14_enable+0x13c>
+  8c:	e58d3000 	str	r3, [sp]
+  90:	e3a03020 	mov	r3, #32, 0
+  94:	e59f2094 	ldr	r2, [pc, #148]	; 130 <cp14_enable+0x130>
+  98:	e59f1094 	ldr	r1, [pc, #148]	; 134 <cp14_enable+0x134>
+  9c:	e59f0094 	ldr	r0, [pc, #148]	; 138 <cp14_enable+0x138>
+  a0:	ebfffffe 	bl	0 <printk>
+  a4:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:33 (discriminator 1)
+  a8:	e59f3090 	ldr	r3, [pc, #144]	; 140 <cp14_enable+0x140>
+  ac:	e58d3000 	str	r3, [sp]
+  b0:	e3a03021 	mov	r3, #33, 0	; 0x21
+  b4:	e59f2074 	ldr	r2, [pc, #116]	; 130 <cp14_enable+0x130>
+  b8:	e59f1074 	ldr	r1, [pc, #116]	; 134 <cp14_enable+0x134>
+  bc:	e59f0074 	ldr	r0, [pc, #116]	; 138 <cp14_enable+0x138>
+  c0:	ebfffffe 	bl	0 <printk>
+  c4:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:34 (discriminator 1)
+  c8:	e59f3074 	ldr	r3, [pc, #116]	; 144 <cp14_enable+0x144>
+  cc:	e58d3000 	str	r3, [sp]
+  d0:	e3a03022 	mov	r3, #34, 0	; 0x22
+  d4:	e59f2054 	ldr	r2, [pc, #84]	; 130 <cp14_enable+0x130>
+  d8:	e59f1054 	ldr	r1, [pc, #84]	; 134 <cp14_enable+0x134>
+  dc:	e59f0054 	ldr	r0, [pc, #84]	; 138 <cp14_enable+0x138>
+  e0:	ebfffffe 	bl	0 <printk>
+  e4:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:38 (discriminator 1)
+  e8:	e59f3058 	ldr	r3, [pc, #88]	; 148 <cp14_enable+0x148>
+  ec:	e58d3000 	str	r3, [sp]
+  f0:	e3a03026 	mov	r3, #38, 0	; 0x26
+  f4:	e59f2034 	ldr	r2, [pc, #52]	; 130 <cp14_enable+0x130>
+  f8:	e59f1034 	ldr	r1, [pc, #52]	; 134 <cp14_enable+0x134>
+  fc:	e59f0034 	ldr	r0, [pc, #52]	; 138 <cp14_enable+0x138>
+ 100:	ebfffffe 	bl	0 <printk>
+ 104:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:39 (discriminator 1)
+ 108:	e59f301c 	ldr	r3, [pc, #28]	; 12c <cp14_enable+0x12c>
+ 10c:	e58d3000 	str	r3, [sp]
+ 110:	e3a03027 	mov	r3, #39, 0	; 0x27
+ 114:	e59f2014 	ldr	r2, [pc, #20]	; 130 <cp14_enable+0x130>
+ 118:	e59f1014 	ldr	r1, [pc, #20]	; 134 <cp14_enable+0x134>
+ 11c:	e59f0014 	ldr	r0, [pc, #20]	; 138 <cp14_enable+0x138>
+ 120:	ebfffffe 	bl	0 <printk>
+ 124:	ebfffffe 	bl	0 <clean_reboot>
+ 128:	00000000 	.word	0x00000000
+ 12c:	0000004c 	.word	0x0000004c
+ 130:	00000000 	.word	0x00000000
+ 134:	00000008 	.word	0x00000008
+ 138:	0000001c 	.word	0x0000001c
+ 13c:	00000060 	.word	0x00000060
+ 140:	00000074 	.word	0x00000074
+ 144:	0000008c 	.word	0x0000008c
+ 148:	000000a4 	.word	0x000000a4
+
+0000014c <brkpt_match_init>:
+brkpt_match_init():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:63
+ 14c:	e92d4010 	push	{r4, lr}
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:64
+ 150:	ebffffaa 	bl	0 <cp14_enable>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:65
+ 154:	e8bd8010 	pop	{r4, pc}
+
+00000158 <brkpt_match_set>:
+brkpt_match_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:70
+ 158:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+ 15c:	e24dd00c 	sub	sp, sp, #12, 0
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:71
+ 160:	e3100003 	tst	r0, #3, 0
+ 164:	1a000010 	bne	1ac <brkpt_match_set+0x54>
+cp14_bvr1_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:13
+ 168:	ee000e91 	mcr	14, 0, r0, cr0, cr1, {4}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 16c:	e3a03000 	mov	r3, #0, 0
+ 170:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_bvr1_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:13
+ 174:	ee103e91 	mrc	14, 0, r3, cr0, cr1, {4}
+brkpt_match_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:75
+ 178:	e1500003 	cmp	r0, r3
+ 17c:	1a000012 	bne	1cc <brkpt_match_set+0x74>
+cp14_bcr1_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:14
+ 180:	e59f3084 	ldr	r3, [pc, #132]	; 20c <brkpt_match_set+0xb4>
+ 184:	ee003eb1 	mcr	14, 0, r3, cr0, cr1, {5}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 188:	e3a02000 	mov	r2, #0, 0
+ 18c:	ee072f95 	mcr	15, 0, r2, cr7, cr5, {4}
+cp14_bcr1_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:14
+ 190:	ee102eb1 	mrc	14, 0, r2, cr0, cr1, {5}
+brkpt_match_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:86
+ 194:	e1520003 	cmp	r2, r3
+ 198:	1a000013 	bne	1ec <brkpt_match_set+0x94>
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 19c:	e3a03000 	mov	r3, #0, 0
+ 1a0:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+brkpt_match_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:88
+ 1a4:	e28dd00c 	add	sp, sp, #12, 0
+ 1a8:	e49df004 	pop	{pc}		; (ldr pc, [sp], #4)
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:71 (discriminator 1)
+ 1ac:	e59f305c 	ldr	r3, [pc, #92]	; 210 <brkpt_match_set+0xb8>
+ 1b0:	e58d3000 	str	r3, [sp]
+ 1b4:	e3a03047 	mov	r3, #71, 0	; 0x47
+ 1b8:	e59f2054 	ldr	r2, [pc, #84]	; 214 <brkpt_match_set+0xbc>
+ 1bc:	e59f1054 	ldr	r1, [pc, #84]	; 218 <brkpt_match_set+0xc0>
+ 1c0:	e59f0054 	ldr	r0, [pc, #84]	; 21c <brkpt_match_set+0xc4>
+ 1c4:	ebfffffe 	bl	0 <printk>
+ 1c8:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:76
+ 1cc:	e58d3004 	str	r3, [sp, #4]
+ 1d0:	e58d0000 	str	r0, [sp]
+ 1d4:	e3a0304c 	mov	r3, #76, 0	; 0x4c
+ 1d8:	e59f2034 	ldr	r2, [pc, #52]	; 214 <brkpt_match_set+0xbc>
+ 1dc:	e59f1034 	ldr	r1, [pc, #52]	; 218 <brkpt_match_set+0xc0>
+ 1e0:	e59f0038 	ldr	r0, [pc, #56]	; 220 <brkpt_match_set+0xc8>
+ 1e4:	ebfffffe 	bl	0 <printk>
+ 1e8:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:86 (discriminator 1)
+ 1ec:	e59f3030 	ldr	r3, [pc, #48]	; 224 <brkpt_match_set+0xcc>
+ 1f0:	e58d3000 	str	r3, [sp]
+ 1f4:	e3a03056 	mov	r3, #86, 0	; 0x56
+ 1f8:	e59f2014 	ldr	r2, [pc, #20]	; 214 <brkpt_match_set+0xbc>
+ 1fc:	e59f1014 	ldr	r1, [pc, #20]	; 218 <brkpt_match_set+0xc0>
+ 200:	e59f0014 	ldr	r0, [pc, #20]	; 21c <brkpt_match_set+0xc4>
+ 204:	ebfffffe 	bl	0 <printk>
+ 208:	ebfffffe 	bl	0 <clean_reboot>
+ 20c:	000001e7 	.word	0x000001e7
+ 210:	000000b8 	.word	0x000000b8
+ 214:	0000000c 	.word	0x0000000c
+ 218:	00000008 	.word	0x00000008
+ 21c:	0000001c 	.word	0x0000001c
+ 220:	000000c8 	.word	0x000000c8
+ 224:	000000f0 	.word	0x000000f0
+
+00000228 <brkpt_mismatch_set>:
+brkpt_mismatch_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:93
+ 228:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+ 22c:	e24dd00c 	sub	sp, sp, #12, 0
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:94
+ 230:	e3100003 	tst	r0, #3, 0
+ 234:	1a000010 	bne	27c <brkpt_mismatch_set+0x54>
+cp14_bvr0_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:10
+ 238:	ee000e90 	mcr	14, 0, r0, cr0, cr0, {4}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 23c:	e3a03000 	mov	r3, #0, 0
+ 240:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_bvr0_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:10
+ 244:	ee103e90 	mrc	14, 0, r3, cr0, cr0, {4}
+brkpt_mismatch_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:98
+ 248:	e1500003 	cmp	r0, r3
+ 24c:	1a000012 	bne	29c <brkpt_mismatch_set+0x74>
+cp14_bcr0_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 250:	e59f3084 	ldr	r3, [pc, #132]	; 2dc <brkpt_mismatch_set+0xb4>
+ 254:	ee003eb0 	mcr	14, 0, r3, cr0, cr0, {5}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 258:	e3a02000 	mov	r2, #0, 0
+ 25c:	ee072f95 	mcr	15, 0, r2, cr7, cr5, {4}
+cp14_bcr0_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 260:	ee102eb0 	mrc	14, 0, r2, cr0, cr0, {5}
+brkpt_mismatch_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:107
+ 264:	e1520003 	cmp	r2, r3
+ 268:	1a000013 	bne	2bc <brkpt_mismatch_set+0x94>
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 26c:	e3a03000 	mov	r3, #0, 0
+ 270:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+brkpt_mismatch_set():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:109
+ 274:	e28dd00c 	add	sp, sp, #12, 0
+ 278:	e49df004 	pop	{pc}		; (ldr pc, [sp], #4)
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:94 (discriminator 1)
+ 27c:	e59f305c 	ldr	r3, [pc, #92]	; 2e0 <brkpt_mismatch_set+0xb8>
+ 280:	e58d3000 	str	r3, [sp]
+ 284:	e3a0305e 	mov	r3, #94, 0	; 0x5e
+ 288:	e59f2054 	ldr	r2, [pc, #84]	; 2e4 <brkpt_mismatch_set+0xbc>
+ 28c:	e59f1054 	ldr	r1, [pc, #84]	; 2e8 <brkpt_mismatch_set+0xc0>
+ 290:	e59f0054 	ldr	r0, [pc, #84]	; 2ec <brkpt_mismatch_set+0xc4>
+ 294:	ebfffffe 	bl	0 <printk>
+ 298:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:99
+ 29c:	e58d3004 	str	r3, [sp, #4]
+ 2a0:	e58d0000 	str	r0, [sp]
+ 2a4:	e3a03063 	mov	r3, #99, 0	; 0x63
+ 2a8:	e59f2034 	ldr	r2, [pc, #52]	; 2e4 <brkpt_mismatch_set+0xbc>
+ 2ac:	e59f1034 	ldr	r1, [pc, #52]	; 2e8 <brkpt_mismatch_set+0xc0>
+ 2b0:	e59f0038 	ldr	r0, [pc, #56]	; 2f0 <brkpt_mismatch_set+0xc8>
+ 2b4:	ebfffffe 	bl	0 <printk>
+ 2b8:	ebfffffe 	bl	0 <clean_reboot>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:107 (discriminator 1)
+ 2bc:	e59f3030 	ldr	r3, [pc, #48]	; 2f4 <brkpt_mismatch_set+0xcc>
+ 2c0:	e58d3000 	str	r3, [sp]
+ 2c4:	e3a0306b 	mov	r3, #107, 0	; 0x6b
+ 2c8:	e59f2014 	ldr	r2, [pc, #20]	; 2e4 <brkpt_mismatch_set+0xbc>
+ 2cc:	e59f1014 	ldr	r1, [pc, #20]	; 2e8 <brkpt_mismatch_set+0xc0>
+ 2d0:	e59f0014 	ldr	r0, [pc, #20]	; 2ec <brkpt_mismatch_set+0xc4>
+ 2d4:	ebfffffe 	bl	0 <printk>
+ 2d8:	ebfffffe 	bl	0 <clean_reboot>
+ 2dc:	004001e7 	.word	0x004001e7
+ 2e0:	000000b8 	.word	0x000000b8
+ 2e4:	0000001c 	.word	0x0000001c
+ 2e8:	00000008 	.word	0x00000008
+ 2ec:	0000001c 	.word	0x0000001c
+ 2f0:	000000c8 	.word	0x000000c8
+ 2f4:	00000108 	.word	0x00000108
+
+000002f8 <brkpt_mismatch_start>:
+brkpt_mismatch_start():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:112
+ 2f8:	e92d4010 	push	{r4, lr}
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:114
+ 2fc:	e59f3028 	ldr	r3, [pc, #40]	; 32c <brkpt_mismatch_start+0x34>
+ 300:	e5933000 	ldr	r3, [r3]
+ 304:	e3530000 	cmp	r3, #0, 0
+ 308:	0a000002 	beq	318 <brkpt_mismatch_start+0x20>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:119 (discriminator 2)
+ 30c:	e3a00000 	mov	r0, #0, 0
+ 310:	ebfffffe 	bl	228 <brkpt_mismatch_set>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:120 (discriminator 2)
+ 314:	e8bd8010 	pop	{r4, pc}
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:115
+ 318:	ebffff38 	bl	0 <cp14_enable>
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:116
+ 31c:	e59f3008 	ldr	r3, [pc, #8]	; 32c <brkpt_mismatch_start+0x34>
+ 320:	e3a02001 	mov	r2, #1, 0
+ 324:	e5832000 	str	r2, [r3]
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:117
+ 328:	eafffff7 	b	30c <brkpt_mismatch_start+0x14>
+ 32c:	00000000 	.word	0x00000000
+
+00000330 <brkpt_mismatch_stop>:
+cp14_bcr0_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 330:	e3a03000 	mov	r3, #0, 0
+ 334:	ee003eb0 	mcr	14, 0, r3, cr0, cr0, {5}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 338:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_bcr0_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 33c:	ee102eb0 	mrc	14, 0, r2, cr0, cr0, {5}
+bit_clr():
+/home/engler/class/cs240lx-25spr//libpi/libc/bit-support.h:9
+ 340:	e3c22001 	bic	r2, r2, #1, 0
+cp14_bcr0_set_raw():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 344:	ee002eb0 	mcr	14, 0, r2, cr0, cr0, {5}
+prefetch_flush():
+/home/engler/class/cs240lx-25spr//libpi/include/asm-helpers.h:32
+ 348:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+ 34c:	ee073f95 	mcr	15, 0, r3, cr7, cr5, {4}
+cp14_bcr0_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:11
+ 350:	ee103eb0 	mrc	14, 0, r3, cr0, cr0, {5}
+brkpt_mismatch_stop():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:128
+ 354:	e3130001 	tst	r3, #1, 0
+ 358:	012fff1e 	bxeq	lr
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:122 (discriminator 1)
+ 35c:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+ 360:	e24dd00c 	sub	sp, sp, #12, 0
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:128 (discriminator 1)
+ 364:	e59f3018 	ldr	r3, [pc, #24]	; 384 <brkpt_mismatch_stop+0x54>
+ 368:	e58d3000 	str	r3, [sp]
+ 36c:	e3a03080 	mov	r3, #128, 0	; 0x80
+ 370:	e59f2010 	ldr	r2, [pc, #16]	; 388 <brkpt_mismatch_stop+0x58>
+ 374:	e59f1010 	ldr	r1, [pc, #16]	; 38c <brkpt_mismatch_stop+0x5c>
+ 378:	e59f0010 	ldr	r0, [pc, #16]	; 390 <brkpt_mismatch_stop+0x60>
+ 37c:	ebfffffe 	bl	0 <printk>
+ 380:	ebfffffe 	bl	0 <clean_reboot>
+ 384:	00000120 	.word	0x00000120
+ 388:	00000030 	.word	0x00000030
+ 38c:	00000008 	.word	0x00000008
+ 390:	0000001c 	.word	0x0000001c
+
+00000394 <brkpt_fault_p>:
+ifsr_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:22
+ 394:	ee153f30 	mrc	15, 0, r3, cr5, cr0, {1}
+was_debugfault_r():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:134
+ 398:	e3130b01 	tst	r3, #1024	; 0x400
+ 39c:	0a000009 	beq	3c8 <brkpt_fault_p+0x34>
+ 3a0:	e3a00000 	mov	r0, #0, 0
+brkpt_fault_p():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:139
+ 3a4:	e3500000 	cmp	r0, #0, 0
+ 3a8:	012fff1e 	bxeq	lr
+dscr_get():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:18
+ 3ac:	ee100e11 	mrc	14, 0, r0, cr0, cr1, {0}
+bits_get():
+/home/engler/class/cs240lx-25spr//libpi/libc/bit-support.h:60
+ 3b0:	e1a00120 	lsr	r0, r0, #2
+ 3b4:	e2000007 	and	r0, r0, #7, 0
+brkpt_fault_p():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:142
+ 3b8:	e3500001 	cmp	r0, #1, 0
+ 3bc:	13a00000 	movne	r0, #0, 0
+ 3c0:	03a00001 	moveq	r0, #1, 0
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:143
+ 3c4:	e12fff1e 	bx	lr
+bits_get():
+/home/engler/class/cs240lx-25spr//libpi/libc/bit-support.h:60
+ 3c8:	e203301f 	and	r3, r3, #31, 0
+was_debugfault_r():
+/home/engler/class/cs240lx-25spr/libpi/staff-private/staff-breakpoint.c:134
+ 3cc:	e3530002 	cmp	r3, #2, 0
+ 3d0:	13a00000 	movne	r0, #0, 0
+ 3d4:	1afffff2 	bne	3a4 <brkpt_fault_p+0x10>
+ 3d8:	e3a00001 	mov	r0, #1, 0
+ 3dc:	eafffff0 	b	3a4 <brkpt_fault_p+0x10>

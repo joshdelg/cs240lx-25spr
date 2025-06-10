@@ -1,3 +1,6 @@
+#include "asm-helpers.h"
+#include "bit-support.h"
+
 #ifndef __BREAKPOINT_H__
 #define __BREAKPOINT_H__
 
@@ -34,7 +37,7 @@ void brkpt_match_set(uint32_t addr);
 // turn off matching (disable bcr1)
 void brkpt_match_stop(void);
 
-void brkpt_match_init(void) ;
+void brkpt_match_init(void);
 
 
 #endif

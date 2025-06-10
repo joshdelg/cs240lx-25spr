@@ -39,10 +39,12 @@ static void usage(const char *msg, ...) {
     output("    --baud <baud_rate>: manually specify baud_rate\n");
     output("    --trace-all: trace all put/get between rpi and unix side\n");
     output("    --trace-control: trace only control [no data] messages\n");
+    
     exit(1);
 }
 
 int main(int argc, char *argv[]) { 
+
     char *dev_name = 0;
     char *pi_prog = 0;
     char *debug_prog = 0;
@@ -61,7 +63,6 @@ int main(int argc, char *argv[]) {
     // Expect pi-debug test.bin to load the debug-harness.bin as the primary program
     // then load test.bin as the debugging target
     pi_prog = "debug-harness.bin";
-    // pi_prog = "hello.bin";
 
     if (argc < 2) {
         panic("No debug program provided\n");
@@ -74,6 +75,10 @@ int main(int argc, char *argv[]) {
     debug_prog = argv[1];
 
     debug_output("Running pi-debug for target %s\n", debug_prog);
+
+    // // Before opening RPI connection, build the line mapping
+    // char* line_map_file = "hello.line_map";
+    // parse_line_map(line_map_file);
 
     // 1. get the name of the ttyUSB.
     if(!dev_name) {

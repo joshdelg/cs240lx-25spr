@@ -26,7 +26,8 @@ static debug_info_t debug_info = {
         {.type = BREAKPOINT_MATCH, .address = 0, .enabled = 0},
     },
     .handler_regs = {},
-    .target_regs = {}
+    .target_regs = {},
+    .yap = 1
 };
 
 // Returns the length of command (not including newline/null)
@@ -44,9 +45,9 @@ uint32_t dispatch_command(char *command) {
     char *cmd_name = strtok_sp(command);
     
     if(cmd_name != NULL) {
-        printk("Command: %s\n", cmd_name);
+        printk("[PI-DEBUG] Command: %s\n", cmd_name);
     } else {
-        printk("No command found\n");
+        printk("[PI-DEBUG] No command found\n");
         return -1;
     }
 
@@ -59,8 +60,12 @@ uint32_t dispatch_command(char *command) {
         run_program(&debug_info);
     } else if (strcmp(cmd_name, "break") == 0) {
         parse_breakpoint_command(&debug_info, cmd_name);
+    } else if (strcmp(cmd_name, "step") == 0) {
+        parse_step_command(&debug_info, cmd_name);
+    } else if (strcmp(cmd_name, "info") == 0) {
+        parse_info_command(&debug_info, cmd_name);
     } else {
-        printk("Unknown command: %s\n", cmd_name);
+        printk("[PI-DEBUG] Unknown command: %s\n", cmd_name);
         return -1;
     }
 
@@ -68,9 +73,11 @@ uint32_t dispatch_command(char *command) {
 }
 
 static void debug_target_done(void) {
-    printk("Debug target code finished executing. Returning to handler.\n");
+    printk("[PI-DEBUG] Debug target code finished executing. Returning to handler.\n");
 
-    switchto_cswitch(&debug_info.target_regs, &debug_info.handler_regs);
+    // Doesn't work because our thread is in user mode
+    // switchto_cswitch(&debug_info.target_regs, &debug_info.handler_regs);
+    switchto(&debug_info.handler_regs);
 }
 
 // initializes the full register set so it can be
@@ -79,10 +86,10 @@ static regs_t
 // thread_mk(void *fn, uint32_t arg, uint32_t stack_p) {
 thread_mk(void *fn, uint32_t stack_p) {
     // compute USER cpsr using current cpsr.
-    // uint32_t cpsr = cpsr_inherit(USER_MODE, cpsr_get());
+    uint32_t cpsr = cpsr_inherit(USER_MODE, cpsr_get());
 
     // Make it a SUPER thread
-    uint32_t cpsr = cpsr_inherit(SUPER_MODE, cpsr_get());
+    // uint32_t cpsr = cpsr_inherit(SUPER_MODE, cpsr_get());
 
     // statically allocate stack.
     static  __attribute__ ((aligned(8))) uint64_t stack[1024*4];
@@ -114,19 +121,33 @@ thread_mk(void *fn, uint32_t stack_p) {
 }
 
 void prefetch_handler(regs_t *r) {
-    printk("Prefetch handler\n");
+    printk("[PI-DEBUG] Prefetch handler\n");
 
     // make sure it was a breakpoint fault.
     if(!brkpt_fault_p())
         panic("have a non-breakpoint fault\n");
     
-    printk("Breakpoint fault!\n");
+    printk("[PI-DEBUG] Breakpoint fault!\n");
 
     // get the pc and cpsr from the saved regs.
     uint32_t pc = r->regs[15];
     uint32_t cpsr = r->regs[16];
 
-    printk("PC: %x, CPSR: %x\n", pc, cpsr);
+    printk("[PI-DEBUG] PC: %x, CPSR: %x\n", pc, cpsr);
+
+    // if(debug_info.state == DEBUG_STATE_SINGLE_STEP) {
+    //     // Set a mismatch breakpoint on faulting address to single step
+    //     if(debug_info.yap) printk("[PI-DEBUG] Setting mismatch breakpoint on faulting address: %x\n", pc);
+    //     set_breakpoint_addr(pc, BREAKPOINT_MISMATCH, 0);
+    //     debug_info.breakpoints[0].type = BREAKPOINT_MISMATCH;
+    //     debug_info.breakpoints[0].address = pc;
+    //     debug_info.breakpoints[0].enabled = 1;
+    // }
+
+    // brkpt_mismatch_set(pc);
+    if(debug_info.state == DEBUG_STATE_SINGLE_STEP) {
+        set_breakpoint_addr(pc, BREAKPOINT_MISMATCH, 0);
+    }
 
     // Save return regs
     // debug_info.resume_regs = *r;
@@ -136,8 +157,9 @@ void prefetch_handler(regs_t *r) {
     // n_inst++;
 
     // Option 1: Turn off breakpoint and resume
-    brkpt_match_stop();
+    // brkpt_match_stop();
     // break_match_clear(0);
+    // break_init();
 
     // 
     
@@ -149,8 +171,8 @@ void prefetch_handler(regs_t *r) {
     debug_info.target_regs = *r;
     // switchto_cswitch(&debug_info.target_regs, &debug_info.handler_regs);
 
-    printk("Target PC: %x\n", debug_info.target_regs.regs[15]);
-    printk("Handler PC: %x\n", debug_info.handler_regs.regs[15]);
+    printk("[PI-DEBUG] Target PC: %x\n", debug_info.target_regs.regs[15]);
+    printk("[PI-DEBUG] Handler PC: %x\n", debug_info.handler_regs.regs[15]);
 
     switchto(&debug_info.handler_regs);
 }
@@ -167,38 +189,19 @@ void notmain(void) {
     printk("Starting debugger!\n");
 
     /** Set up exeception modes: breakpoints, single-stepping */
-    
-    // sanity check that we are at SUPER_MODE
     if(mode_get(cpsr_get()) != SUPER_MODE)
         panic("not at SUPER level?\n");
 
-    // install is idempotent if already there.
     full_except_install(0);
-
-    // for breakpoint handling (like lab 10)
     full_except_set_prefetch(prefetch_handler);
-    // for system calls (like many labs).  note:
-    // current code doesn't use this.  we leave it
-    // in case you want to try other way.
-    // full_except_set_syscall(single_step_syscall);
 
-    // set undefined instruction handler in case
-    // you want to try that way of handling fault.
-    // full_except_set_undef(single_step_undef);
-
-    // printk("Initialized breakpoint and single-stepping\n");
-
-    // printk("Setting breakpoint before print 4\n");
-
-    brkpt_match_init();
-    // brkpt_match_set(0x50070);
-
-    // BRANCHTO(0x50000);
+    // brkpt_match_init();
+    break_init();
 
     debug_info.target_regs = thread_mk((void *)TARGET_ENTRYPOINT, 1024*4);
 
     while(1) {
-        printk("RPi Debugger - Current PC: %x\n", debug_info.target_regs.regs[15]);
+        printk("[PI-DEBUG] RPi Debugger - pc=%x: %x\n", debug_info.target_regs.regs[15], *(uint32_t *)(debug_info.target_regs.regs[15]));
         printk("> ");
         
         char command[MAX_COMMAND_LENGTH];
@@ -206,11 +209,7 @@ void notmain(void) {
 
         uint32_t ret = dispatch_command(command);
         if(ret == -1) {
-            printk("Error dispatching command\n");
+            printk("[PI-DEBUG] Error dispatching command\n");
         }
     }
-
-
-    // // Branch to entrypoint
-    // BRANCHTO(0x50000);
 }

@@ -9,7 +9,10 @@ objs/l1/l2/l3//commands.o: commands.c \
  /Users/joshdelg/cs240lx-25spr//libpi/include/cpsr-util.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-interrupts.h \
  /Users/joshdelg/cs240lx-25spr//libpi/libc/bit-support.h \
- /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-inline-asm.h
+ /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-inline-asm.h \
+ /Users/joshdelg/cs240lx-25spr//libpi/include/breakpoint.h \
+ /Users/joshdelg/cs240lx-25spr//libpi/include/asm-helpers.h \
+ /Users/joshdelg/cs240lx-25spr//libpi/libc/bit-support.h
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi.h:
 
@@ -38,3 +41,9 @@ breakpoints.h:
 /Users/joshdelg/cs240lx-25spr//libpi/libc/bit-support.h:
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi-inline-asm.h:
+
+/Users/joshdelg/cs240lx-25spr//libpi/include/breakpoint.h:
+
+/Users/joshdelg/cs240lx-25spr//libpi/include/asm-helpers.h:
+
+/Users/joshdelg/cs240lx-25spr//libpi/libc/bit-support.h:

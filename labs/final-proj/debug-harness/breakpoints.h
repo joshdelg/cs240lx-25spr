@@ -35,8 +35,14 @@ uint32_t parse_breakpoint_addr(char *addr_str);
 uint32_t set_breakpoint_addr(uint32_t addr, breakpoint_type_t type, uint32_t id);
 uint32_t clear_breakpoint_addr(uint32_t addr, breakpoint_type_t type, uint32_t id);
 
+// Initialize breakpoints
+void break_init(void);
+
 // Re-implementation of staff breakpoint functions
 void break_match_set(uint32_t id, uint32_t addr);
 void break_match_clear(uint32_t id);
+
+void cp14_enable(void);
+void cp14_disable(void);
 
 #endif

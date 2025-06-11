@@ -22,6 +22,8 @@
         "asm-helpers.h": "c",
         "switchto.h": "c",
         "commands.h": "c",
-        "cpsr-util.h": "c"
+        "cpsr-util.h": "c",
+        "armv6-except.h": "c",
+        "full-except.h": "c"
     }
 }

@@ -4,7 +4,8 @@
 # to add your gpio.c:
 #   1. copy gpio.c to libpi/src/gpio.c
 #   2. comment out:
-STAFF_OBJS  +=  ./staff-objs/gpio.o
+# STAFF_OBJS  +=  ./staff-objs/gpio.o
+STAFF_OBJS  +=  ./staff-objs/my-gpio.o
 #   3. uncomment:
 # SRC += src/gpio.c
 
@@ -15,14 +16,18 @@ STAFF_OBJS  +=  ./staff-objs/gpio.o
 STAFF_OBJS  +=  ./staff-objs/gpio-pud.o
 
 STAFF_OBJS  +=  ./staff-objs/i2c.o
-STAFF_OBJS  +=  ./staff-objs/uart.o
+# STAFF_OBJS  +=  ./staff-objs/uart.o
+STAFF_OBJS  +=  ./staff-objs/my-uart.o
 STAFF_OBJS  +=  ./staff-objs/gpio-int.o 
 
-STAFF_OBJS += ./staff-objs/kmalloc.o
-STAFF_OBJS += ./staff-objs/staff-single-step.o
-STAFF_OBJS += ./staff-objs/staff-full-except-asm.o
+# STAFF_OBJS += ./staff-objs/kmalloc.o
+STAFF_OBJS += ./staff-objs/my-kmalloc.o
+# STAFF_OBJS += ./staff-objs/staff-single-step.o
+# STAFF_OBJS += ./staff-objs/staff-full-except-asm.o
+STAFF_OBJS += ./staff-objs/my-full-except-asm.o
 STAFF_OBJS += ./staff-objs/staff-switchto-asm.o
-STAFF_OBJS += ./staff-objs/staff-full-except.o
+# STAFF_OBJS += ./staff-objs/staff-full-except.o
+STAFF_OBJS += ./staff-objs/my-full-except.o
 STAFF_OBJS += ./staff-objs/interrupts-asm.o
 STAFF_OBJS += ./staff-objs/interrupts-vec-asm.o
 STAFF_OBJS += ./staff-objs/staff-rpi-thread-asm.o

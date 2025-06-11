@@ -17,7 +17,8 @@ objs/l1/l2/l3//debug-harness.o: debug-harness.c \
  /Users/joshdelg/cs240lx-25spr//libpi/include/cpsr-util.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/armv6-except.h \
  /Users/joshdelg/cs240lx-25spr//libpi/include/switchto.h strlib.h \
- commands.h breakpoints.h
+ commands.h breakpoints.h fat32/pi-sd.h fat32/fat32.h fat32/mbr.h \
+ fat32/pi-sd.h fat32/mbr-helpers.h fat32/pi-files.h
 
 /Users/joshdelg/cs240lx-25spr//libpi/include/rpi.h:
 
@@ -60,3 +61,15 @@ strlib.h:
 commands.h:
 
 breakpoints.h:
+
+fat32/pi-sd.h:
+
+fat32/fat32.h:
+
+fat32/mbr.h:
+
+fat32/pi-sd.h:
+
+fat32/mbr-helpers.h:
+
+fat32/pi-files.h:

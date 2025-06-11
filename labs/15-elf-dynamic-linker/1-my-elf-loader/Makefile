@@ -15,7 +15,7 @@ SRCDIRS += ./static-deps
 CFLAGS = -D__RPI__ -Og -Wall -nostdlib -nostartfiles -ffreestanding \
          -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -std=gnu99 \
          -ggdb -Wno-pointer-sign -Werror -Wno-unused-function -Wno-unused-variable \
-         -mno-unaligned-access -mtp=soft
+         -mno-unaligned-access -mtp=hard
 ASFLAGS = -nostdlib -nostartfiles -ffreestanding \
 		  -Wa,--warn -Wa,--fatal-warnings -Wa,-mcpu=arm1176jzf-s -Wa,-march=armv6zk
 INCLUDES = -I. \

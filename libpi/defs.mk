@@ -63,5 +63,5 @@ CFLAGS += -mtp=soft
 CPP_ASFLAGS =  -nostdlib -nostartfiles -ffreestanding   -Wa,--warn -Wa,--fatal-warnings -Wa,-mcpu=arm1176jzf-s -Wa,-march=armv6zk   $(INC)
 
 
-CFLAGS += -DRPI_FP_ENABLED  -mhard-float -mfpu=vfp 
-CPP_ASFLAGS += -DRPI_FP_ENABLED  -mhard-float -mfpu=vfp
+# CFLAGS += -DRPI_FP_ENABLED  -mhard-float -mfpu=vfp 
+# CPP_ASFLAGS += -DRPI_FP_ENABLED  -mhard-float -mfpu=vfp

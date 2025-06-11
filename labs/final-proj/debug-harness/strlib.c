@@ -37,6 +37,12 @@ char *strtok_sp(char *str) {
 }
 
 uint32_t str_to_uint32(char *str) {
+    // Skip 0x prefix if present
+    if(str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
+        str += 2;
+    }
+
+    
     uint32_t num = 0;
     for(int i = 0; i < strlen(str); i++) {
         if(str[i] >= '0' && str[i] <= '9') {
@@ -51,4 +57,10 @@ uint32_t str_to_uint32(char *str) {
         }
     }
     return num;
+}
+
+uint32_t str_ends_with(char *str, char *suffix) {
+    int str_len = strlen(str);
+    int suffix_len = strlen(suffix);
+    return strncmp(str + str_len - suffix_len, suffix, suffix_len) == 0;
 }
